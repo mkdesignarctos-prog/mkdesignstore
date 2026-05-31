@@ -6,6 +6,7 @@ import { collection, onSnapshot, doc, setDoc, updateDoc, addDoc, getDoc, query, 
 interface StoreContextType {
   currentUser: User | null;
   apps: AppItem[];
+  isLoadingApps: boolean;
   login: () => Promise<void>;
   logout: () => void;
   becomeDeveloper: () => Promise<void>;
@@ -22,6 +23,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [apps, setApps] = useState<AppItem[]>([]);
   const [reviewsMap, setReviewsMap] = useState<Record<string, Review[]>>({});
   const [authReady, setAuthReady] = useState(false);
+  const [isLoadingApps, setIsLoadingApps] = useState(true);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
@@ -56,7 +58,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         appsData.push({ id: doc.id, ...doc.data() } as AppItem);
       });
       setApps(appsData);
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'apps'));
+      setIsLoadingApps(false);
+    }, (err) => {
+      handleFirestoreError(err, OperationType.LIST, 'apps');
+      setIsLoadingApps(false);
+    });
 
     return () => unsubApps();
   }, [authReady]);
@@ -148,6 +154,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     <StoreContext.Provider value={{
       currentUser,
       apps,
+      isLoadingApps,
       login,
       logout,
       becomeDeveloper,

@@ -9,7 +9,7 @@ import { db } from '../lib/firebase';
 
 export function AppDetails() {
   const { id } = useParams<{ id: string }>();
-  const { getAppById, getReviewsForApp, currentUser, addReview } = useStore();
+  const { getAppById, getReviewsForApp, currentUser, addReview, isLoadingApps } = useStore();
   const navigate = useNavigate();
   
   const app = id ? getAppById(id) : undefined;
@@ -23,6 +23,14 @@ export function AppDetails() {
   const [copied, setCopied] = useState(false);
 
   if (!app) {
+    if (isLoadingApps) {
+      return (
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+          <div className="w-12 h-12 border-4 border-mk-green-500 border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-zinc-400">Carregando aplicativo...</p>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <h1 className="text-2xl font-bold mb-4 font-display">Aplicativo não encontrado</h1>
