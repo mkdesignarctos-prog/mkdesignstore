@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppItem, User, Review } from '../types';
-import { auth, loginWithGoogle, logout as firebaseLogout } from '../lib/firebase';
 import { supabase } from '../lib/supabase';
 
 interface StoreContextType {
   currentUser: User | null;
   apps: AppItem[];
   login: () => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   becomeDeveloper: () => Promise<void>;
   publishApp: (app: Omit<AppItem, 'id' | 'rating' | 'reviews' | 'downloads' | 'createdAt'>) => Promise<void>;
   addReview: (appId: string, review: Omit<Review, 'id' | 'date'>) => Promise<void>;
@@ -24,28 +23,55 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          const { data } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', firebaseUser.uid)
-            .single();
-          
-          if (data) setCurrentUser(data as User);
-          setAuthReady(true);
-        } catch (err) {
-          console.error(err);
-          setAuthReady(true);
-        }
+    // Check initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        await fetchAndSetUser(session.user);
+      } else {
+        setAuthReady(true);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        await fetchAndSetUser(session.user);
       } else {
         setCurrentUser(null);
         setAuthReady(true);
       }
     });
-    return () => unsubscribe();
+    
+    return () => subscription.unsubscribe();
   }, []);
+
+  const fetchAndSetUser = async (authUser: any) => {
+    try {
+      // Check if user exists in our users table
+      const { data: userSnap, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+        
+      if (fetchError && fetchError.code === 'PGRST116') {
+        // Create new user profile if it doesn't exist
+        const newUser = {
+          id: authUser.id,
+          name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
+          isDeveloper: false,
+          createdAt: Date.now()
+        };
+        await supabase.from('users').insert(newUser);
+        setCurrentUser(newUser as User);
+      } else if (userSnap) {
+        setCurrentUser(userSnap as User);
+      }
+    } catch (err) {
+      console.error('Error fetching/setting user:', err);
+    } finally {
+      setAuthReady(true);
+    }
+  };
 
   const fetchApps = async () => {
     try {
@@ -96,11 +122,24 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, [apps]);
 
   const login = async () => {
-    await loginWithGoogle();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) {
+      console.error('Error logging in:', error);
+    }
   };
 
-  const logout = () => {
-    firebaseLogout();
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error logging out:', error);
+    } else {
+      setCurrentUser(null);
+    }
   };
 
   const becomeDeveloper = async () => {
