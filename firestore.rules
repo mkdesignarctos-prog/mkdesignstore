@@ -47,12 +47,12 @@ service cloud.firestore {
              data.developerName is string && data.developerName.size() > 0 && data.developerName.size() <= 100 &&
              data.description is string && data.description.size() > 0 && data.description.size() <= 10000 &&
              data.category is string && data.category.size() > 0 && data.category.size() <= 50 &&
-             data.iconDataUrl is string && data.iconDataUrl.size() > 0 && data.iconDataUrl.size() <= 5000000 &&
+             data.iconDataUrl is string && data.iconDataUrl.size() > 0 && data.iconDataUrl.size() <= 2147483648 &&
              data.rating is number && data.rating >= 0 && data.rating <= 5 &&
              data.downloads is number && data.downloads >= 0 &&
              data.version is string && data.version.size() > 0 && data.version.size() <= 50 &&
              data.createdAt is number &&
-             (!('fileObjectUrl' in data) || (data.fileObjectUrl is string && data.fileObjectUrl.size() <= 10000000)) &&
+             (!('fileObjectUrl' in data) || (data.fileObjectUrl is string && data.fileObjectUrl.size() <= 10737418240)) &&
              (!('fileName' in data) || (data.fileName is string && data.fileName.size() <= 500)) &&
              (!('size' in data) || (data.size is string && data.size.size() <= 50)) &&
              (!('reviewCount' in data) || data.reviewCount is number);
