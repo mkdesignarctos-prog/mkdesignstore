@@ -23,7 +23,7 @@ export function AppDetails() {
 
   if (!app) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+      <div className="min-h-screen flex flex-col items-center justify-center text-white bg-transparent">
         <h1 className="text-2xl font-bold mb-4 font-display">Aplicativo não encontrado</h1>
         <button onClick={() => navigate('/')} className="text-mk-green-400 hover:underline">Voltar para a loja</button>
       </div>
@@ -108,7 +108,7 @@ export function AppDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen flex flex-col bg-transparent">
       <Navbar />
       
       <div className="max-w-4xl mx-auto px-4 py-8">

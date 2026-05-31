@@ -8,12 +8,12 @@ export function Home() {
   const { apps } = useStore();
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen flex flex-col bg-transparent">
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative overflow-hidden border-b border-zinc-900/80">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-mk-green-500/15 via-black to-black" />
+      <div className="relative overflow-hidden border-b border-mk-green-500/20">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-mk-green-500/20 via-transparent to-transparent" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-mk-green-500/10 blur-[120px] rounded-full pointer-events-none" />
         
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-24 pb-32">
@@ -22,10 +22,10 @@ export function Home() {
             <span>A Evolução da Distribuição</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-white tracking-tighter leading-[1.05] max-w-4xl">
-            Descubra apps<br />incríveis, publique <span className="text-transparent bg-clip-text bg-gradient-to-r from-mk-green-400 to-mk-green-600">os seus.</span>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-white tracking-tighter leading-[1.05] max-w-4xl drop-shadow-lg">
+            Descubra, baixe e<br />poste os <span className="text-transparent bg-clip-text bg-gradient-to-r from-mk-green-400 to-mk-green-600 drop-shadow-none">seus apps.</span>
           </h1>
-          <p className="mt-8 text-xl text-zinc-400 max-w-2xl leading-relaxed font-medium">
+          <p className="mt-8 text-xl text-zinc-300 max-w-2xl leading-relaxed font-medium drop-shadow-md">
             Bem-vindo à MK Design Studio Store. Uma plataforma profissional, segura e dedicada a elevar a experiência de download e publicação de softwares para dispositivos móveis e desktops.
           </p>
           

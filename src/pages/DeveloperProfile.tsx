@@ -17,7 +17,7 @@ export function DeveloperProfile() {
   const developerName = developerApps.length > 0 ? developerApps[0].developerName : 'Desenvolvedor Desconhecido';
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen flex flex-col bg-transparent">
       <Navbar />
       
       <div className="flex-1 max-w-7xl mx-auto px-4 md:px-8 py-12 w-full">

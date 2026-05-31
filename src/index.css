@@ -13,23 +13,25 @@
 }
 
 body {
-  @apply bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen tracking-tight;
+  @apply text-zinc-100 font-sans antialiased min-h-screen tracking-tight;
+  background: linear-gradient(180deg, #000000 0%, #001200 40%, #064006 100%);
+  background-attachment: fixed;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  @apply font-display tracking-tight;
+  @apply font-display tracking-tight text-white;
 }
 
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090b; 
+  background: rgba(0,0,0,0.3); 
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a; 
+  background: #25B30E; 
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46; 
+  background: #39FF14; 
 }

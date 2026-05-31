@@ -17,7 +17,7 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
     <Link to={`/app/${app.id}`} className="block h-full" {...props}>
       <motion.div 
         whileHover={{ y: -4 }}
-        className="group bg-zinc-900 border border-zinc-800 hover:border-mk-green-500/30 rounded-2xl p-4 transition-colors flex flex-col h-full cursor-pointer relative overflow-hidden"
+        className="group bg-zinc-900/60 backdrop-blur-md border border-zinc-700/50 hover:border-mk-green-500/50 rounded-2xl p-4 transition-colors flex flex-col h-full cursor-pointer relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-t from-mk-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         

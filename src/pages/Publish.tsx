@@ -26,7 +26,7 @@ export function Publish() {
   // Redireciona se não for desenvolvedor
   if (!currentUser?.isDeveloper) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+      <div className="min-h-screen flex flex-col items-center justify-center text-white bg-transparent">
         <h1 className="text-2xl font-bold mb-4">Acesso Restrito</h1>
         <p className="text-zinc-400 mb-6">Você precisa ser um Desenvolvedor MK para acessar este painel.</p>
         <button onClick={() => navigate('/')} className="px-6 py-2 bg-mk-green-500 text-black font-bold rounded-full">
@@ -108,7 +108,7 @@ export function Publish() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen flex flex-col bg-transparent">
       <Navbar />
       
       <div className="max-w-3xl mx-auto px-4 py-12">
