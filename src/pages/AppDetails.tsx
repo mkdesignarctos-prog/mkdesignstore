@@ -4,8 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { Navbar } from '../components/Navbar';
 import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 
 export function AppDetails() {
   const { id } = useParams<{ id: string }>();
@@ -56,8 +55,13 @@ export function AppDetails() {
     
     // Increment download globally, do not block the actual download
     try {
-      const appRef = doc(db, 'apps', app.id);
-      updateDoc(appRef, { downloads: (app.downloads || 0) + 1 }).catch(e => console.warn('Falha ao contar download', e));
+      supabase
+        .from('apps')
+        .update({ downloads: (app.downloads || 0) + 1 })
+        .eq('id', app.id)
+        .then(({ error }) => {
+          if (error) console.warn('Falha ao contar download', error);
+        });
     } catch (e) {
       console.warn('Erro ao atualizar downloads', e);
     }

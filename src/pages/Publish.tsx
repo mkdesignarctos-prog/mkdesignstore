@@ -39,8 +39,8 @@ export function Publish() {
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 150 * 1024) {
-        alert("O ícone deve ter no máximo 150KB.");
+      if (file.size > 200 * 1024 * 1024) {
+        alert("O ícone deve ter no máximo 200MB.");
         e.target.value = '';
         return;
       }
@@ -56,8 +56,8 @@ export function Publish() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 800 * 1024) {
-        alert("O tamanho do arquivo do app está limitado a 800KB nesta versão inicial.");
+      if (file.size > 200 * 1024 * 1024) {
+        alert("O tamanho do arquivo do app está limitado a 200MB.");
         e.target.value = '';
         return;
       }
@@ -76,7 +76,7 @@ export function Publish() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !description || !iconPreview) {
       alert('Por favor, preencha todos os campos obrigatórios e adicione um ícone.');
@@ -85,9 +85,8 @@ export function Publish() {
 
     setIsPublishing(true);
 
-    // Simula upload
-    setTimeout(() => {
-      publishApp({
+    try {
+      await publishApp({
         name,
         description,
         category,
@@ -99,10 +98,13 @@ export function Publish() {
         fileName: appFile?.name,
         size: appFile ? formatSize(appFile.size) : 'Variante',
       });
-      
-      setIsPublishing(false);
       navigate('/');
-    }, 2000);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao publicar: o app é muito grande para o Firestore Database (limite de 1MB por documento). Para arquivos até 200MB, hospede via Firebase Storage ou S3.');
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -223,7 +225,7 @@ export function Publish() {
                       <>
                         <FileBox size={48} className="mb-4" />
                         <span className="text-sm font-medium">Fazer upload do arquivo</span>
-                        <span className="text-xs mt-2 text-zinc-500">Max 800KB</span>
+                        <span className="text-xs mt-2 text-zinc-500">Max 200MB</span>
                       </>
                     )}
                   </div>

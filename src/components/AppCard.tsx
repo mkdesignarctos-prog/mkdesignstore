@@ -4,7 +4,7 @@ import { AppItem } from '../types';
 import { Link, useNavigate } from 'react-router-dom';
 import { Star, Download } from 'lucide-react';
 
-export function AppCard({ app }: { app: AppItem }) {
+export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttributes<HTMLAnchorElement>) {
   const navigate = useNavigate();
 
   const handleDeveloperClick = (e: React.MouseEvent) => {
@@ -14,7 +14,7 @@ export function AppCard({ app }: { app: AppItem }) {
   };
 
   return (
-    <Link to={`/app/${app.id}`} className="block h-full">
+    <Link to={`/app/${app.id}`} className="block h-full" {...props}>
       <motion.div 
         whileHover={{ y: -4 }}
         className="group bg-zinc-900 border border-zinc-800 hover:border-mk-green-500/30 rounded-2xl p-4 transition-colors flex flex-col h-full cursor-pointer relative overflow-hidden"

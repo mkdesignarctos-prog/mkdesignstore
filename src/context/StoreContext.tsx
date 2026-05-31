@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppItem, User, Review } from '../types';
-import { auth, db, loginWithGoogle, logout as firebaseLogout, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, onSnapshot, doc, setDoc, updateDoc, addDoc, getDoc, query, orderBy } from 'firebase/firestore';
+import { auth, loginWithGoogle, logout as firebaseLogout } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 
 interface StoreContextType {
   currentUser: User | null;
@@ -27,14 +27,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          const userRef = doc(db, 'users', firebaseUser.uid);
-          const unsubUser = onSnapshot(userRef, (docSnap) => {
-            if (docSnap.exists()) {
-              setCurrentUser({ id: docSnap.id, ...docSnap.data() } as User);
-            }
-          }, (err) => handleFirestoreError(err, OperationType.GET, 'users'));
+          const { data } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', firebaseUser.uid)
+            .single();
+          
+          if (data) setCurrentUser(data as User);
           setAuthReady(true);
-          return () => unsubUser();
         } catch (err) {
           console.error(err);
           setAuthReady(true);
@@ -47,38 +47,53 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  const fetchApps = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('apps')
+        .select('*')
+        .order('createdAt', { ascending: false });
+      
+      if (!error && data) {
+        setApps(data as AppItem[]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     if (!authReady) return;
-    const q = query(collection(db, 'apps'), orderBy('createdAt', 'desc'));
-    const unsubApps = onSnapshot(q, (snapshot) => {
-      const appsData: AppItem[] = [];
-      snapshot.forEach((doc) => {
-        appsData.push({ id: doc.id, ...doc.data() } as AppItem);
-      });
-      setApps(appsData);
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'apps'));
-
-    return () => unsubApps();
+    fetchApps();
+    
+    // Auto-refresh periodically as a fallback instead of complex realtime config
+    const interval = setInterval(fetchApps, 10000);
+    return () => clearInterval(interval);
   }, [authReady]);
 
-  // We should listen to reviews selectively per app, but for now we'll load them dynamically or when viewing.
-  // We'll update the getReviewsForApp to subscribe if not subscribed.
+  const fetchReviews = async (appId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('appId', appId)
+        .order('date', { ascending: false });
+      
+      if (!error && data) {
+        setReviewsMap(prev => ({...prev, [appId]: data as Review[]}));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    // Basic app reviews listeners
-    const unsubscribes: (() => void)[] = [];
     apps.forEach(app => {
       if (!reviewsMap[app.id]) {
-        const revRef = collection(db, 'apps', app.id, 'reviews');
-        const q = query(revRef, orderBy('date', 'desc'));
-        const u = onSnapshot(q, (snap) => {
-          const revs = snap.docs.map(d => ({id: d.id, ...d.data() } as unknown as Review));
-          setReviewsMap(prev => ({...prev, [app.id]: revs}));
-        }, err => handleFirestoreError(err, OperationType.LIST, `apps/${app.id}/reviews`));
-        unsubscribes.push(u);
+        fetchReviews(app.id);
       }
     });
-    return () => unsubscribes.forEach(u => u());
-  }, [apps.length]); // Hook when apps are added
+  }, [apps]);
 
   const login = async () => {
     await loginWithGoogle();
@@ -91,10 +106,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const becomeDeveloper = async () => {
     if (currentUser) {
       try {
-        const userRef = doc(db, 'users', currentUser.id);
-        await updateDoc(userRef, { isDeveloper: true });
+        await supabase
+          .from('users')
+          .update({ isDeveloper: true })
+          .eq('id', currentUser.id);
+        
+        setCurrentUser({ ...currentUser, isDeveloper: true });
       } catch (err) {
-        handleFirestoreError(err, OperationType.UPDATE, 'users');
+        console.error(err);
       }
     }
   };
@@ -102,42 +121,57 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const publishApp = async (newAppInfo: Omit<AppItem, 'id' | 'rating' | 'reviews' | 'downloads' | 'createdAt'>) => {
     if (!currentUser) return;
     try {
-      const newAppRef = doc(collection(db, 'apps'));
-      await setDoc(newAppRef, {
+      const newApp = {
         ...newAppInfo,
+        id: crypto.randomUUID(),
         rating: 0,
         downloads: 0,
         createdAt: Date.now(),
         reviewCount: 0
-      });
+      };
+      
+      await supabase
+        .from('apps')
+        .insert([newApp]);
+      
+      await fetchApps();
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, 'apps');
+      console.error(err);
+      throw err;
     }
   };
 
   const addReview = async (appId: string, reviewInfo: Omit<Review, 'id' | 'date'>) => {
     try {
-      const reviewRef = doc(collection(db, 'apps', appId, 'reviews'));
-      await setDoc(reviewRef, {
+      const newReview = {
         ...reviewInfo,
+        id: crypto.randomUUID(),
+        appId,
         date: new Date().toISOString()
-      });
-      // Updating rating and reviewCount for simple average
-      const appRef = doc(db, 'apps', appId);
-      const appSnap = await getDoc(appRef);
-      if (appSnap.exists()) {
-        const data = appSnap.data();
-        const curCount = data.reviewCount || 0;
-        const curRating = data.rating || 0;
+      };
+
+      await supabase.from('reviews').insert([newReview]);
+      
+      // Calculate simple average
+      const app = getAppById(appId);
+      if (app) {
+        const curCount = app.reviewCount || 0;
+        const curRating = app.rating || 0;
         const newCount = curCount + 1;
         const newRating = ((curRating * curCount) + reviewInfo.rating) / newCount;
-        await updateDoc(appRef, {
-          rating: newRating,
-          reviewCount: newCount
-        });
+        
+        await supabase
+          .from('apps')
+          .update({ rating: newRating, reviewCount: newCount })
+          .eq('id', appId);
+        
+        await fetchApps();
       }
+      
+      await fetchReviews(appId);
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `apps/${appId}/reviews`);
+      console.error(err);
+      throw err;
     }
   };
 
