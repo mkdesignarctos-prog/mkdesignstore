@@ -15,13 +15,11 @@
 body {
   @apply text-zinc-100 font-sans antialiased min-h-screen tracking-tight;
   background-image: 
-    linear-gradient(rgba(57, 255, 20, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(57, 255, 20, 0.1) 1px, transparent 1px),
-    url('/bg-controller.jpg');
-  background-size: 40px 40px, 40px 40px, cover;
-  background-position: center;
+    radial-gradient(circle at top, rgba(37, 179, 14, 0.22) 0%, rgba(0, 0, 0, 1) 75%),
+    linear-gradient(rgba(57, 255, 20, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 255, 20, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
   background-attachment: fixed;
-  background-repeat: repeat, repeat, no-repeat;
   background-color: #000000;
 }
 

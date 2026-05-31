@@ -1,22 +1,74 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../context/StoreContext';
-import { X, Gamepad2, ShieldCheck, LogIn } from 'lucide-react';
+import { X, Gamepad2, ShieldCheck, User, Lock, ArrowRight } from 'lucide-react';
 
 export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
-  const { login } = useStore();
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { loginWithPassword, signUpWithPassword } = useStore();
+  
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleLogin = async () => {
-    setIsLoggingIn(true);
+  const resetForm = () => {
+    setUsername('');
+    setPassword('');
+    setErrorMessage('');
+    setSuccessMessage('');
+  };
+
+  const handleToggleMode = () => {
+    setIsSignUp(!isSignUp);
+    resetForm();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (!username.trim() || !password.trim()) {
+      setErrorMessage('Por favor, preencha todos os campos.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMessage('A senha precisa ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      await login();
-      onClose();
-    } catch (err) {
+      if (isSignUp) {
+        await signUpWithPassword(username, password);
+        setSuccessMessage('Conta criada com sucesso! Se você já puder logar, faça login abaixo.');
+        setIsSignUp(false); // Toggle back to login mode so they can sign in
+        setPassword(''); // Reset password for login
+      } else {
+        await loginWithPassword(username, password);
+        onClose();
+        resetForm();
+      }
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao fazer login. Tente novamente.');
+      
+      // Parse more friendly error messages
+      let msg = err.message || 'Erro ao realizar a operação. Verifique seus dados.';
+      if (msg.includes('Invalid login credentials') || msg.includes('does not match')) {
+        msg = 'Usuário ou senha incorretos.';
+      } else if (msg.includes('already registered') || msg.includes('user_already_exists')) {
+        msg = 'Este nome de usuário já está sendo utilizado.';
+      } else if (msg.includes('Signup is disabled')) {
+        msg = 'O cadastro de novas contas está desativado nesta instância do banco de dados.';
+      }
+      
+      setErrorMessage(msg);
     } finally {
-      setIsLoggingIn(false);
+      setIsLoading(false);
     }
   };
 
@@ -40,41 +92,118 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-mk-green-600 via-mk-green-400 to-mk-green-600"></div>
               
-              <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+              <button 
+                onClick={onClose} 
+                className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-zinc-800"
+              >
                 <X size={20} />
               </button>
 
-              <div className="flex flex-col items-center mb-10 mt-4">
-                <div className="w-20 h-20 bg-zinc-950 border border-mk-green-500/30 rounded-2xl flex items-center justify-center mb-6 text-mk-green-400 shadow-[0_0_20px_rgba(57,255,20,0.15)] relative">
+              <div className="flex flex-col items-center mb-6 mt-2">
+                <div className="w-16 h-16 bg-zinc-950 border border-mk-green-500/30 rounded-2xl flex items-center justify-center mb-4 text-mk-green-400 shadow-[0_0_20px_rgba(57,255,20,0.15)] relative">
                   <div className="absolute inset-0 bg-mk-green-400/5 rounded-2xl blur-xl"></div>
-                  <Gamepad2 size={40} className="relative z-10" />
+                  <Gamepad2 size={32} className="relative z-10 animate-pulse" />
                 </div>
-                <h2 className="text-3xl font-display font-bold text-white tracking-tight mb-2">Acesso Segurou</h2>
-                <p className="text-zinc-400 text-center text-sm leading-relaxed max-w-[280px]">Faça login com sua conta Google para baixar apps, avaliar e publicar seus próprios projetos.</p>
+                <h2 className="text-2xl font-display font-bold text-white tracking-tight mb-1">
+                  {isSignUp ? 'Criar Nova Conta' : 'Acesso Seguro'}
+                </h2>
+                <p className="text-zinc-400 text-center text-xs leading-relaxed max-w-[280px]">
+                  {isSignUp 
+                    ? 'Escolha seu apelido gamer e uma senha forte para explorar nossa biblioteca.' 
+                    : 'Acesse para baixar jogos, deixar avaliações reais e publicar seus próprios projetos.'}
+                </p>
               </div>
 
-              <div className="space-y-4">
-                <button 
-                  onClick={handleLogin}
-                  disabled={isLoggingIn}
-                  className="w-full bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl px-1 py-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-lg relative group"
+              {/* Tab Mode Selectors */}
+              <div className="flex bg-zinc-950 p-1.5 rounded-xl border border-zinc-800/80 mb-6">
+                <button
+                  type="button"
+                  onClick={() => { setIsSignUp(false); resetForm(); }}
+                  className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${!isSignUp ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
                 >
-                  <div className="bg-white rounded-lg p-2.5 flex items-center justify-center border border-zinc-200 mr-2 ml-1">
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                      <path fill="none" d="M1 1h22v22H1z" />
-                    </svg>
-                  </div>
-                  <span className="flex-1 text-center pr-10">{isLoggingIn ? 'Conectando...' : 'Continuar com Google'}</span>
+                  Entrar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setIsSignUp(true); resetForm(); }}
+                  className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${isSignUp ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
+                >
+                  Criar Conta
                 </button>
               </div>
+
+              {/* Inline alerts to replace window.alerts */}
+              {errorMessage && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -5 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  className="mb-4 p-3 bg-red-950/40 border border-red-500/30 text-red-200 rounded-xl text-xs text-center font-medium"
+                >
+                  {errorMessage}
+                </motion.div>
+              )}
+
+              {successMessage && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -5 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  className="mb-4 p-3 bg-mk-green-950/20 border border-mk-green-500/35 text-mk-green-400 rounded-xl text-xs text-center font-medium"
+                >
+                  {successMessage}
+                </motion.div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Username Input */}
+                <div>
+                  <label className="block text-zinc-400 text-xs font-semibold mb-1.5 pl-1">Nome de Usuário</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <User size={16} />
+                    </div>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder={isSignUp ? 'ex: supermario' : 'ex: supermario ou email'}
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-green-500/50 hover:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-zinc-600 text-sm outline-none transition-all focus:ring-1 focus:ring-mk-green-500/20"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Password Input */}
+                <div>
+                  <label className="block text-zinc-400 text-xs font-semibold mb-1.5 pl-1">Senha</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <Lock size={16} />
+                    </div>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-green-500/50 hover:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-zinc-600 text-sm outline-none transition-all focus:ring-1 focus:ring-mk-green-500/20"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-mk-green-600 to-mk-green-500 hover:from-mk-green-500 hover:to-mk-green-400 text-black font-semibold rounded-xl py-3 px-4 shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 group"
+                >
+                  <span>{isLoading ? 'Modificando...' : (isSignUp ? 'Registrar' : 'Entrar com Senha')}</span>
+                  {!isLoading && <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />}
+                </button>
+              </form>
               
-              <div className="mt-8 flex items-center justify-center gap-2 text-xs text-zinc-500 bg-zinc-950/50 py-3 rounded-xl border border-zinc-900">
-                <ShieldCheck size={16} className="text-mk-green-500" />
-                <span>Autenticação 100% Segura e Verificada</span>
+              <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-zinc-500 bg-zinc-950/50 py-3 rounded-xl border border-zinc-900">
+                <ShieldCheck size={14} className="text-mk-green-500" />
+                <span>Autenticação Integrada Supabase</span>
               </div>
             </div>
           </motion.div>

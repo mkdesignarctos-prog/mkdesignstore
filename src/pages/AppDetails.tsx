@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Navbar } from '../components/Navbar';
-import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X } from 'lucide-react';
+import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
+import { InstallModal } from '../components/InstallModal';
 
 export function AppDetails() {
   const { id } = useParams<{ id: string }>();
@@ -16,9 +17,11 @@ export function AppDetails() {
   
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
+  const [guestName, setGuestName] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isInstallOpen, setIsInstallOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   if (!app) {
@@ -33,7 +36,7 @@ export function AppDetails() {
   const handleShareClick = () => {
     if (navigator.share) {
       navigator.share({
-        title: `Baixe ${app.name} na MK Store`,
+        title: `Baixe ${app.name} na Gamer Hub`,
         text: app.description,
         url: window.location.href,
       }).catch(() => {
@@ -53,7 +56,7 @@ export function AppDetails() {
   const handleDownload = async () => {
     setIsDownloading(true);
     
-    // Increment download globally, do not block the actual download
+    // Increment download globally
     try {
       supabase
         .from('apps')
@@ -68,36 +71,29 @@ export function AppDetails() {
       
     setTimeout(() => {
       setIsDownloading(false);
-      if (app.fileObjectUrl) {
-        const a = document.createElement('a');
-        a.href = app.fileObjectUrl;
-        a.download = app.fileName || `${app.name.replace(/\s+/g, '_')}.zip`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } else {
-        alert('Pronto! App preparado para download (Demo).');
-      }
-    }, 1500);
+      setIsInstallOpen(true); // Open premium simulated device installer!
+    }, 600);
   };
 
   const submitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) {
-      alert('Você precisa estar logado para avaliar.');
-      return;
-    }
     if (!reviewText.trim()) return;
 
     setIsSubmitting(true);
     try {
+      const finalUserId = currentUser ? currentUser.id : `guest-${crypto.randomUUID().slice(0, 8)}`;
+      const finalUserName = currentUser 
+        ? currentUser.name 
+        : (guestName.trim() || `Jogador_${Math.floor(1000 + Math.random() * 9000)}`);
+
       await addReview(app.id, {
-        userId: currentUser.id,
-        userName: currentUser.name,
+        userId: finalUserId,
+        userName: finalUserName,
         rating,
         text: reviewText.trim()
       });
       setReviewText('');
+      setGuestName('');
       setRating(5);
     } catch (err) {
       console.error(err);
@@ -209,45 +205,60 @@ export function AppDetails() {
         <div>
           <h2 className="text-2xl font-bold font-display text-white mb-6">Avaliações e Opiniões</h2>
           
-          {currentUser ? (
-            <form onSubmit={submitReview} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-8 flex flex-col gap-4">
-              <h3 className="text-white font-medium">Deixe sua opinião</h3>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button type="button" key={star} onClick={() => setRating(star)} className="focus:outline-none transition-transform hover:scale-110">
-                    <Star size={28} className={star <= rating ? 'fill-mk-green-400 text-mk-green-400' : 'text-zinc-700'} />
-                  </button>
-                ))}
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 mt-2">
-                <input 
-                  type="text" 
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  placeholder="Conte para os outros o que você achou..."
-                  className="flex-1 bg-zinc-950 border border-zinc-800 focus:border-mk-green-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
-                />
-                <button 
-                  type="submit"
-                  disabled={!reviewText.trim() || isSubmitting}
-                  className="bg-mk-green-500 hover:bg-mk-green-400 text-black px-6 py-3 rounded-xl font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 sm:w-auto w-full"
-                >
-                  <Send size={18} />
-                  {isSubmitting ? 'Enviando...' : 'Publicar'}
+          <form onSubmit={submitReview} className="bg-zinc-900 border border-zinc-900 rounded-3xl p-6 mb-8 flex flex-col gap-4 shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-950 pb-3">
+              <h3 className="text-white font-bold text-sm tracking-tight">Deixe sua opinião</h3>
+              {!currentUser && (
+                <div className="px-3 py-1 bg-mk-green-950/20 text-mk-green-400 border border-mk-green-500/20 text-[10px] font-mono font-bold uppercase rounded-lg">
+                  ⚡ Visitante Anônimo (Sem Necessidade de Login)
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2.5 my-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button type="button" key={star} onClick={() => setRating(star)} className="focus:outline-none transition-transform hover:scale-115">
+                  <Star size={24} className={star <= rating ? 'fill-mk-green-400 text-mk-green-400' : 'text-zinc-700'} />
                 </button>
-              </div>
-            </form>
-          ) : (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-8 flex items-center gap-4">
-              <div className="w-12 h-12 bg-zinc-950 rounded-xl flex items-center justify-center text-zinc-500">
-                <AlertCircle size={24} />
-              </div>
+              ))}
+            </div>
+
+            <div className="space-y-4">
+              {!currentUser && (
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider font-mono mb-1.5 pl-1">Seu Nome / Apelido Gamer (Opcional):</label>
+                  <input 
+                    type="text" 
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    placeholder="Ex: Player_Master_2026 (Deixe em branco para apelido randômico)"
+                    className="w-full bg-zinc-950 border border-zinc-850 focus:border-mk-green-500/50 rounded-xl px-4 py-2.5 text-xs text-white placeholder-zinc-600 outline-none transition-colors font-mono"
+                  />
+                </div>
+              )}
+
               <div>
-                <p className="text-white font-medium">Faça login para avaliar</p>
-                <p className="text-sm text-zinc-400">Você precisa ter uma conta na plataforma para deixar análises públicas.</p>
+                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider font-mono mb-1.5 pl-1">Comentário público:</label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input 
+                    type="text" 
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    placeholder="Conte para os outros o que você achou deste aplicativo..."
+                    className="flex-1 bg-zinc-950 border border-zinc-850 focus:border-mk-green-500/50 rounded-xl px-4 py-3 text-xs text-white placeholder-zinc-600 outline-none transition-colors"
+                  />
+                  <button 
+                    type="submit"
+                    disabled={!reviewText.trim() || isSubmitting}
+                    className="bg-mk-green-500 hover:bg-mk-green-400 text-black px-6 py-3 rounded-xl font-extrabold text-xs tracking-wider uppercase transition-colors disabled:opacity-40 flex items-center justify-center gap-2 sm:w-auto w-full shrink-0"
+                  >
+                    <Send size={14} />
+                    {isSubmitting ? 'Enviando...' : 'Avaliar'}
+                  </button>
+                </div>
               </div>
             </div>
-          )}
+          </form>
 
           <div className="space-y-4">
             {reviews.length === 0 ? (
@@ -337,6 +348,7 @@ export function AppDetails() {
           </React.Fragment>
         )}
       </AnimatePresence>
+      <InstallModal isOpen={isInstallOpen} onClose={() => setIsInstallOpen(false)} app={app} />
     </div>
   );
 }

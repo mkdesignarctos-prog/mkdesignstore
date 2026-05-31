@@ -16,36 +16,76 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
   return (
     <Link to={`/app/${app.id}`} className="block h-full" {...props}>
       <motion.div 
-        whileHover={{ y: -4 }}
-        className="group bg-zinc-900/60 backdrop-blur-md border border-zinc-700/50 hover:border-mk-green-500/50 rounded-2xl p-4 transition-colors flex flex-col h-full cursor-pointer relative overflow-hidden"
+        whileHover={{ y: -6, scale: 1.015 }}
+        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        className="group bg-zinc-900/40 backdrop-blur-md border border-zinc-800/85 hover:border-mk-green-500/40 rounded-2xl p-5 transition-all flex flex-col h-full cursor-pointer relative overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_4px_30px_rgba(57,255,20,0.06)]"
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-mk-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        {/* Futuristic top-corner visual accent */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-mk-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-tr-2xl pointer-events-none" />
         
         <div className="flex items-start gap-4 mb-4">
-          <img 
-            src={app.iconDataUrl} 
-            alt={app.name} 
-            className="w-16 h-16 rounded-2xl object-cover bg-zinc-800 border border-zinc-800 shadow-lg group-hover:shadow-[0_0_15px_rgba(57,255,20,0.2)]"
-          />
+          <div className="relative">
+            <img 
+              src={app.iconDataUrl} 
+              alt={app.name} 
+              className="w-16 h-16 rounded-xl object-cover bg-zinc-950 border border-zinc-800 shadow-md group-hover:scale-105 transition-transform duration-300"
+            />
+            {/* Ambient indicator badge if rating is high */}
+            {app.rating >= 4.5 && (
+              <span className="absolute -top-1.5 -left-1.5 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mk-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-mk-green-500"></span>
+              </span>
+            )}
+          </div>
+          
           <div className="flex-1 min-w-0">
-            <h3 className="text-white font-bold truncate pr-4 text-lg">{app.name}</h3>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold text-zinc-500 bg-zinc-950 px-2 py-0.5 rounded-md border border-zinc-900">
+                {app.category}
+              </span>
+            </div>
+            
+            <h3 className="text-white font-bold tracking-tight truncate pr-2 text-base group-hover:text-mk-green-400 transition-colors">
+              {app.name}
+            </h3>
+            
             <button 
               onClick={handleDeveloperClick}
-              className="text-zinc-400 hover:text-mk-green-400 transition-colors text-xs truncate mb-2 block focus:outline-none"
+              className="text-zinc-500 hover:text-mk-green-400 transition-colors text-xs truncate block font-medium mt-0.5 focus:outline-none"
             >
-              {app.developerName}
+              by {app.developerName}
             </button>
-            <div className="flex items-center gap-1.5 text-xs font-semibold">
-              <span className="text-white">{app.rating > 0 ? app.rating.toFixed(1) : 'Novo'}</span>
-              {app.rating > 0 && <Star className="w-3.5 h-3.5 text-mk-green-400 fill-mk-green-400" />}
-            </div>
           </div>
         </div>
 
-        <div className="mt-auto pt-4 border-t border-zinc-800/50 flex items-center justify-between z-10">
-          <span className="text-xs text-zinc-500 font-medium">{app.category}</span>
-          <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-mk-green-500 text-zinc-400 group-hover:text-black flex items-center justify-center transition-colors">
-            <Download size={14} />
+        {/* Short description preview to add premium value */}
+        {app.description && (
+          <p className="text-zinc-400 text-xs line-clamp-2 leading-relaxed mb-5 font-light">
+            {app.description}
+          </p>
+        )}
+
+        {/* Dynamic Metrics Panel */}
+        <div className="mt-auto pt-4 border-t border-zinc-900 flex items-center justify-between z-10 gap-2">
+          <div className="flex items-center gap-3">
+            {/* Rating display */}
+            <div className="flex items-center gap-1">
+              <Star className={`w-3.5 h-3.5 ${app.rating > 0 ? 'text-mk-green-400 fill-mk-green-400' : 'text-zinc-600'}`} />
+              <span className="text-xs font-bold text-white font-mono">
+                {app.rating > 0 ? app.rating.toFixed(1) : '-.-'}
+              </span>
+            </div>
+            
+            {/* Downloads Display */}
+            <div className="text-[11px] text-zinc-500 font-mono">
+              <span>{app.downloads > 0 ? `${app.downloads.toLocaleString()} dl` : 'Novidade'}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 bg-zinc-950 group-hover:bg-mk-green-500 text-zinc-400 group-hover:text-black py-1.5 px-3 rounded-xl transition-all duration-300 border border-zinc-900 group-hover:border-mk-green-500 pr-2">
+            <span className="text-[10px] font-mono font-bold tracking-wider mr-1 group-hover:text-black">INSTALL</span>
+            <Download size={12} className="animate-bounce" style={{ animationDuration: '2s' }} />
           </div>
         </div>
       </motion.div>

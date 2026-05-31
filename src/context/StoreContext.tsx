@@ -1,17 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppItem, User, Review } from '../types';
 import { supabase } from '../lib/supabase';
+import { fallbackApps } from '../data/fallbackApps';
 
 interface StoreContextType {
   currentUser: User | null;
   apps: AppItem[];
-  login: () => Promise<void>;
+  loginWithPassword: (username: string, password: string) => Promise<void>;
+  signUpWithPassword: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   becomeDeveloper: () => Promise<void>;
   publishApp: (app: Omit<AppItem, 'id' | 'rating' | 'reviews' | 'downloads' | 'createdAt'>) => Promise<void>;
   addReview: (appId: string, review: Omit<Review, 'id' | 'date'>) => Promise<void>;
   getAppById: (id: string) => AppItem | undefined;
   getReviewsForApp: (appId: string) => Review[];
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -21,6 +25,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [apps, setApps] = useState<AppItem[]>([]);
   const [reviewsMap, setReviewsMap] = useState<Record<string, Review[]>>({});
   const [authReady, setAuthReady] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // Check initial session
@@ -80,11 +85,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .order('createdAt', { ascending: false });
       
-      if (!error && data) {
-        setApps(data as AppItem[]);
-      }
+      const dbAppsList = (!error && data) ? (data as AppItem[]) : [];
+      
+      const localSaved = localStorage.getItem('local_published_apps_v1');
+      const localAppsList: AppItem[] = localSaved ? JSON.parse(localSaved) : [];
+      
+      const mergedMap = new Map<string, AppItem>();
+      
+      fallbackApps.forEach(item => mergedMap.set(item.id, item));
+      localAppsList.forEach(item => mergedMap.set(item.id, item));
+      dbAppsList.forEach(item => mergedMap.set(item.id, item));
+      
+      const sortedApps = Array.from(mergedMap.values()).sort((a, b) => {
+        const timeA = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime();
+        const timeB = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
+        return (timeB || 0) - (timeA || 0);
+      });
+      
+      setApps(sortedApps);
     } catch (err) {
       console.error(err);
+      const localSaved = localStorage.getItem('local_published_apps_v1');
+      const localAppsList: AppItem[] = localSaved ? JSON.parse(localSaved) : [];
+      const mergedMap = new Map<string, AppItem>();
+      fallbackApps.forEach(item => mergedMap.set(item.id, item));
+      localAppsList.forEach(item => mergedMap.set(item.id, item));
+      setApps(Array.from(mergedMap.values()));
     }
   };
 
@@ -92,8 +118,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (!authReady) return;
     fetchApps();
     
-    // Auto-refresh periodically as a fallback instead of complex realtime config
-    const interval = setInterval(fetchApps, 10000);
+    const interval = setInterval(fetchApps, 15000);
     return () => clearInterval(interval);
   }, [authReady]);
 
@@ -105,11 +130,38 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         .eq('appId', appId)
         .order('date', { ascending: false });
       
-      if (!error && data) {
-        setReviewsMap(prev => ({...prev, [appId]: data as Review[]}));
-      }
+      const dbReviewsList = (!error && data) ? (data as Review[]) : [];
+      
+      const fbApp = fallbackApps.find(a => a.id === appId);
+      const fbReviews = fbApp ? fbApp.reviews : [];
+      
+      const localRevSaved = localStorage.getItem('local_reviews_map_v1');
+      const localMap = localRevSaved ? JSON.parse(localRevSaved) : {};
+      const localReviewsList = localMap[appId] || [];
+      
+      const mergedReviewsMap = new Map<string, Review>();
+      fbReviews.forEach(r => mergedReviewsMap.set(r.id, r));
+      localReviewsList.forEach((r: Review) => mergedReviewsMap.set(r.id, r));
+      dbReviewsList.forEach(r => mergedReviewsMap.set(r.id, r));
+      
+      const sortedReviews = Array.from(mergedReviewsMap.values()).sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
+      
+      setReviewsMap(prev => ({...prev, [appId]: sortedReviews}));
     } catch (err) {
       console.error(err);
+      const fbApp = fallbackApps.find(a => a.id === appId);
+      const fbReviews = fbApp ? fbApp.reviews : [];
+      const localRevSaved = localStorage.getItem('local_reviews_map_v1');
+      const localMap = localRevSaved ? JSON.parse(localRevSaved) : {};
+      const localReviewsList = localMap[appId] || [];
+      
+      const mergedReviewsMap = new Map<string, Review>();
+      fbReviews.forEach(r => mergedReviewsMap.set(r.id, r));
+      localReviewsList.forEach((r: Review) => mergedReviewsMap.set(r.id, r));
+      
+      setReviewsMap(prev => ({...prev, [appId]: Array.from(mergedReviewsMap.values())}));
     }
   };
 
@@ -121,15 +173,35 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     });
   }, [apps]);
 
-  const login = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+  const getEmail = (username: string) => {
+    const clean = username.trim().toLowerCase();
+    return clean.includes('@') ? clean : `${clean}@marketplace.local`;
+  };
+
+  const loginWithPassword = async (username: string, password: string) => {
+    const email = getEmail(username);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      throw error;
+    }
+  };
+
+  const signUpWithPassword = async (username: string, password: string) => {
+    const email = getEmail(username);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
       options: {
-        redirectTo: window.location.origin
+        data: {
+          full_name: username.trim()
+        }
       }
     });
     if (error) {
-      console.error('Error logging in:', error);
+      throw error;
     }
   };
 
@@ -158,43 +230,64 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
 
   const publishApp = async (newAppInfo: Omit<AppItem, 'id' | 'rating' | 'reviews' | 'downloads' | 'createdAt'>) => {
-    if (!currentUser) return;
+    const newApp: AppItem = {
+      ...newAppInfo,
+      id: crypto.randomUUID(),
+      rating: 0,
+      reviews: [],
+      downloads: 0,
+      createdAt: new Date().toISOString()
+    };
+    
     try {
-      const newApp = {
-        ...newAppInfo,
-        id: crypto.randomUUID(),
-        rating: 0,
-        downloads: 0,
-        createdAt: Date.now(),
-        reviewCount: 0
-      };
-      
+      const localSaved = localStorage.getItem('local_published_apps_v1');
+      const localAppsList = localSaved ? JSON.parse(localSaved) : [];
+      localAppsList.push(newApp);
+      localStorage.setItem('local_published_apps_v1', JSON.stringify(localAppsList));
+    } catch (e) {
+      console.error('Failed saving to localStorage backup:', e);
+    }
+
+    try {
       await supabase
         .from('apps')
-        .insert([newApp]);
-      
-      await fetchApps();
+        .insert([{
+          ...newApp,
+          reviewCount: 0
+        }]);
     } catch (err) {
-      console.error(err);
-      throw err;
+      console.warn('Supabase publish failed, relying on localStorage:', err);
     }
+    
+    await fetchApps();
   };
 
   const addReview = async (appId: string, reviewInfo: Omit<Review, 'id' | 'date'>) => {
-    try {
-      const newReview = {
-        ...reviewInfo,
-        id: crypto.randomUUID(),
-        appId,
-        date: new Date().toISOString()
-      };
+    const newReview: Review = {
+      ...reviewInfo,
+      id: crypto.randomUUID(),
+      date: new Date().toISOString()
+    };
 
-      await supabase.from('reviews').insert([newReview]);
+    try {
+      const localRevSaved = localStorage.getItem('local_reviews_map_v1');
+      const localMap = localRevSaved ? JSON.parse(localRevSaved) : {};
+      if (!localMap[appId]) localMap[appId] = [];
+      localMap[appId].push(newReview);
+      localStorage.setItem('local_reviews_map_v1', JSON.stringify(localMap));
+    } catch (e) {
+      console.error('Failed saving review to localStorage:', e);
+    }
+
+    try {
+      await supabase.from('reviews').insert([{
+        ...newReview,
+        appId
+      }]);
       
-      // Calculate simple average
       const app = getAppById(appId);
       if (app) {
-        const curCount = app.reviewCount || 0;
+        const curCount = (app as any).reviewCount || 0;
         const curRating = app.rating || 0;
         const newCount = curCount + 1;
         const newRating = ((curRating * curCount) + reviewInfo.rating) / newCount;
@@ -203,15 +296,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           .from('apps')
           .update({ rating: newRating, reviewCount: newCount })
           .eq('id', appId);
-        
-        await fetchApps();
       }
-      
-      await fetchReviews(appId);
     } catch (err) {
-      console.error(err);
-      throw err;
+      console.warn('Supabase review failed, relying on localStorage:', err);
     }
+
+    await fetchApps();
+    await fetchReviews(appId);
   };
 
   const getAppById = (id: string) => apps.find(a => a.id === id);
@@ -221,13 +312,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     <StoreContext.Provider value={{
       currentUser,
       apps,
-      login,
+      loginWithPassword,
+      signUpWithPassword,
       logout,
       becomeDeveloper,
       publishApp,
       addReview,
       getAppById,
-      getReviewsForApp
+      getReviewsForApp,
+      searchQuery,
+      setSearchQuery
     }}>
       {children}
     </StoreContext.Provider>
