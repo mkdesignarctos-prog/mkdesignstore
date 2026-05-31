@@ -36,7 +36,7 @@ export function AppDetails() {
   const handleShareClick = () => {
     if (navigator.share) {
       navigator.share({
-        title: `Baixe ${app.name} na Gamer Hub`,
+        title: `Baixe ${app.name} na MK Design Studio`,
         text: app.description,
         url: window.location.href,
       }).catch(() => {

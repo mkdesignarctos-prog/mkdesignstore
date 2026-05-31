@@ -2,19 +2,18 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useStore } from '../context/StoreContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MonitorDown, Code2, LogOut, User, Github } from 'lucide-react';
+import { Search, MonitorDown, Code2, LogOut, User } from 'lucide-react';
 import { AuthModal } from './AuthModal';
-import { GitSyncModal } from './GitSyncModal';
 
 export function Navbar() {
   const { currentUser, logout, becomeDeveloper, searchQuery, setSearchQuery } = useStore();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isGitSyncOpen, setIsGitSyncOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
     <>
+      <div className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-mk-green-400 to-transparent z-50" />
       <nav className="sticky top-0 z-30 bg-zinc-950/75 backdrop-blur-xl border-b border-zinc-900/80 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
           
@@ -24,7 +23,7 @@ export function Navbar() {
               <span className="text-mk-green-400 font-display font-extrabold text-xl font-mono tracking-tight group-hover:scale-105 transition-transform">MK</span>
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-display font-bold text-white text-[17px] leading-tight tracking-tight group-hover:text-mk-green-400 transition-colors duration-300">Gamer Hub</h1>
+              <h1 className="font-display font-bold text-white text-[17px] leading-tight tracking-tight group-hover:text-mk-green-400 transition-colors duration-300">MK Design Studio</h1>
               <p className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold font-mono">Premium Store</p>
             </div>
           </Link>
@@ -54,15 +53,6 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsGitSyncOpen(true)}
-              className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest text-zinc-400 hover:text-white px-4 py-2 bg-gradient-to-r from-zinc-950 to-zinc-900 border border-zinc-850 hover:border-zinc-750 rounded-full transition-all duration-200 shadow-md"
-              title="Guia de Sincronização GitHub"
-            >
-              <Github size={14} className="text-mk-green-400 animate-pulse" />
-              <span className="hidden sm:inline">GitHub Sync</span>
-            </button>
-
             {!currentUser ? (
               <button 
                 onClick={() => setIsAuthOpen(true)}
@@ -129,7 +119,6 @@ export function Navbar() {
       </nav>
       
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
-      <GitSyncModal isOpen={isGitSyncOpen} onClose={() => setIsGitSyncOpen(false)} />
     </>
   );
 }

@@ -15,12 +15,32 @@
 body {
   @apply text-zinc-100 font-sans antialiased min-h-screen tracking-tight;
   background-image: 
-    radial-gradient(circle at top, rgba(37, 179, 14, 0.22) 0%, rgba(0, 0, 0, 1) 75%),
+    linear-gradient(135deg, rgba(8, 55, 4, 0.9) 0%, rgba(2, 14, 1, 0.98) 32%, #000000 78%),
+    repeating-linear-gradient(0deg, rgba(57, 255, 20, 0.015) 0px, rgba(57, 255, 20, 0.015) 1px, transparent 1px, transparent 4px),
     linear-gradient(rgba(57, 255, 20, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(57, 255, 20, 0.04) 1px, transparent 1px);
-  background-size: 100% 100%, 40px 40px, 40px 40px;
+  background-size: 100% 100%, 100% 4px, 48px 48px, 48px 48px;
   background-attachment: fixed;
   background-color: #000000;
+}
+
+/* Custom Neo-glowing lines styled as requested by user */
+.neon-line-horizontal {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.45) 20%, rgba(57, 255, 20, 0.7) 50%, rgba(57, 255, 20, 0.45) 80%, transparent);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.25);
+}
+
+.neon-line-vertical {
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(57, 255, 20, 0.4) 20%, rgba(57, 255, 20, 0.6) 50%, rgba(57, 255, 20, 0.4) 80%, transparent);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+.tech-grid-line {
+  background-size: 20px 20px;
+  background-image: linear-gradient(to right, rgba(57, 255, 20, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(57, 255, 20, 0.05) 1px, transparent 1px);
 }
 
 h1, h2, h3, h4, h5, h6 {

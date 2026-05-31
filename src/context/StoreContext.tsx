@@ -28,6 +28,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    // Check local session first
+    const savedLocalUser = localStorage.getItem('local_logged_in_user_v1');
+    if (savedLocalUser) {
+      try {
+        setCurrentUser(JSON.parse(savedLocalUser));
+      } catch (err) {
+        console.error('Error parsing local user:', err);
+      }
+      setAuthReady(true);
+      return;
+    }
+
     // Check initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
@@ -35,13 +47,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       } else {
         setAuthReady(true);
       }
+    }).catch(() => {
+      setAuthReady(true);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         await fetchAndSetUser(session.user);
       } else {
-        setCurrentUser(null);
+        const locallyLogged = localStorage.getItem('local_logged_in_user_v1');
+        if (!locallyLogged) {
+          setCurrentUser(null);
+        }
         setAuthReady(true);
       }
     });
@@ -96,7 +113,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       localAppsList.forEach(item => mergedMap.set(item.id, item));
       dbAppsList.forEach(item => mergedMap.set(item.id, item));
       
-      const sortedApps = Array.from(mergedMap.values()).sort((a, b) => {
+      const sortedApps = Array.from(mergedMap.values())
+        .filter(app => !app.id.startsWith('premium-app-') && !app.id.startsWith('mock-'))
+        .sort((a, b) => {
         const timeA = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime();
         const timeB = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
         return (timeB || 0) - (timeA || 0);
@@ -110,7 +129,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const mergedMap = new Map<string, AppItem>();
       fallbackApps.forEach(item => mergedMap.set(item.id, item));
       localAppsList.forEach(item => mergedMap.set(item.id, item));
-      setApps(Array.from(mergedMap.values()));
+      
+      const filtered = Array.from(mergedMap.values())
+        .filter(app => !app.id.startsWith('premium-app-') && !app.id.startsWith('mock-'));
+      setApps(filtered);
     }
   };
 
@@ -180,42 +202,179 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithPassword = async (username: string, password: string) => {
     const email = getEmail(username);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      throw error;
+    const isPlaceholder = !(import.meta as any).env.VITE_SUPABASE_URL || (import.meta as any).env.VITE_SUPABASE_URL.includes('placeholder.supabase.co');
+    
+    if (isPlaceholder) {
+      // Direct local login
+      const localUsersSaved = localStorage.getItem('local_users_db_v1');
+      const localUsers: Record<string, { username: string; passwordHash: string; id: string; isDeveloper: boolean }> = localUsersSaved 
+        ? JSON.parse(localUsersSaved) 
+        : {};
+      
+      const key = username.trim().toLowerCase();
+      const userRecord = localUsers[key];
+      
+      if (!userRecord || userRecord.passwordHash !== password) {
+        throw new Error('Usuário ou senha incorretos.');
+      }
+      
+      const loggedUser: User = {
+        id: userRecord.id,
+        name: userRecord.username,
+        isDeveloper: userRecord.isDeveloper || false
+      };
+      
+      localStorage.setItem('local_logged_in_user_v1', JSON.stringify(loggedUser));
+      setCurrentUser(loggedUser);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        throw error;
+      }
+    } catch (err: any) {
+      // Local login fallback
+      const localUsersSaved = localStorage.getItem('local_users_db_v1');
+      const localUsers: Record<string, { username: string; passwordHash: string; id: string; isDeveloper: boolean }> = localUsersSaved 
+        ? JSON.parse(localUsersSaved) 
+        : {};
+      
+      const key = username.trim().toLowerCase();
+      const userRecord = localUsers[key];
+      
+      if (userRecord && userRecord.passwordHash === password) {
+        const loggedUser: User = {
+          id: userRecord.id,
+          name: userRecord.username,
+          isDeveloper: userRecord.isDeveloper || false
+        };
+        localStorage.setItem('local_logged_in_user_v1', JSON.stringify(loggedUser));
+        setCurrentUser(loggedUser);
+        return;
+      }
+      throw err;
     }
   };
 
   const signUpWithPassword = async (username: string, password: string) => {
     const email = getEmail(username);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: username.trim()
-        }
+    const isPlaceholder = !(import.meta as any).env.VITE_SUPABASE_URL || (import.meta as any).env.VITE_SUPABASE_URL.includes('placeholder.supabase.co');
+
+    if (isPlaceholder) {
+      const localUsersSaved = localStorage.getItem('local_users_db_v1');
+      const localUsers: Record<string, { username: string; passwordHash: string; id: string; isDeveloper: boolean }> = localUsersSaved 
+        ? JSON.parse(localUsersSaved) 
+        : {};
+      
+      const key = username.trim().toLowerCase();
+      if (localUsers[key]) {
+        throw new Error('Este nome de usuário já está sendo utilizado.');
       }
-    });
-    if (error) {
-      throw error;
+      
+      const userId = 'local-user-' + crypto.randomUUID();
+      const newUserRecord = {
+        username: username.trim(),
+        passwordHash: password,
+        id: userId,
+        isDeveloper: false
+      };
+      
+      localUsers[key] = newUserRecord;
+      localStorage.setItem('local_users_db_v1', JSON.stringify(localUsers));
+      
+      const loggedUser: User = {
+        id: userId,
+        name: username.trim(),
+        isDeveloper: false
+      };
+      localStorage.setItem('local_logged_in_user_v1', JSON.stringify(loggedUser));
+      setCurrentUser(loggedUser);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: username.trim()
+          }
+        }
+      });
+      if (error) {
+        throw error;
+      }
+    } catch (err: any) {
+      // Local fallback registration
+      const localUsersSaved = localStorage.getItem('local_users_db_v1');
+      const localUsers: Record<string, { username: string; passwordHash: string; id: string; isDeveloper: boolean }> = localUsersSaved 
+        ? JSON.parse(localUsersSaved) 
+        : {};
+      
+      const key = username.trim().toLowerCase();
+      if (localUsers[key]) {
+        throw new Error('Este nome de usuário já está sendo utilizado.');
+      }
+      
+      const userId = 'local-user-' + crypto.randomUUID();
+      const newUserRecord = {
+        username: username.trim(),
+        passwordHash: password,
+        id: userId,
+        isDeveloper: false
+      };
+      
+      localUsers[key] = newUserRecord;
+      localStorage.setItem('local_users_db_v1', JSON.stringify(localUsers));
+      
+      const loggedUser: User = {
+        id: userId,
+        name: username.trim(),
+        isDeveloper: false
+      };
+      localStorage.setItem('local_logged_in_user_v1', JSON.stringify(loggedUser));
+      setCurrentUser(loggedUser);
     }
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error logging out:', error);
-    } else {
-      setCurrentUser(null);
+    localStorage.removeItem('local_logged_in_user_v1');
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('Supabase logout skipped or failed:', e);
     }
+    setCurrentUser(null);
   };
 
   const becomeDeveloper = async () => {
     if (currentUser) {
+      if (currentUser.id.startsWith('local-user-')) {
+        const localUsersSaved = localStorage.getItem('local_users_db_v1');
+        if (localUsersSaved) {
+          try {
+            const localUsers = JSON.parse(localUsersSaved);
+            const key = currentUser.name.toLowerCase();
+            if (localUsers[key]) {
+              localUsers[key].isDeveloper = true;
+              localStorage.setItem('local_users_db_v1', JSON.stringify(localUsers));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        const updatedUser = { ...currentUser, isDeveloper: true };
+        localStorage.setItem('local_logged_in_user_v1', JSON.stringify(updatedUser));
+        setCurrentUser(updatedUser);
+        return;
+      }
+
       try {
         await supabase
           .from('users')

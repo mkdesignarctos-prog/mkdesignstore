@@ -92,7 +92,7 @@ export function Home() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/80 border border-mk-green-500/25 text-mk-green-400 text-[10px] font-bold font-mono tracking-widest uppercase mb-6 shadow-[0_0_20px_rgba(57,255,20,0.08)] bg-gradient-to-r from-zinc-900 to-black"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-mk-green-500/35 text-mk-green-400 bg-transparent text-[10px] font-bold font-mono tracking-widest uppercase mb-6 shadow-[0_0_20px_rgba(57,255,20,0.08)] font-sans"
           >
             <Sparkles size={12} className="animate-pulse" />
             <span>Curadoria Exclusiva de Aplicativos</span>
@@ -113,7 +113,7 @@ export function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 text-base sm:text-lg text-zinc-400 max-w-2xl leading-relaxed font-light"
           >
-            Explore o repositório premium da MK Gamer Hub. Baixe jogos de alta performance, ferramentas refinadas de utilidade e publique as suas próprias inspirações em um ecossistema com suporte completo para o Supabase.
+            Explore o repositório premium de apps e jogos da MK Design Studio. Baixe jogos de alta performance, ferramentas refinadas de utilidade e publique as suas próprias inspirações em um ecossistema com suporte completo para o Supabase.
           </motion.p>
           
           <motion.div 
@@ -133,6 +133,9 @@ export function Home() {
           </motion.div>
         </div>
       </div>
+
+      {/* Dynamic Glowing Neon Line */}
+      <div className="neon-line-horizontal -mt-px relative z-10" />
 
       {/* Spotlight Segment - Featured App of the Day */}
       {spotlightApp && !searchQuery && selectedCategory === 'Todos' && (
