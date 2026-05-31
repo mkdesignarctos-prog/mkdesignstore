@@ -1,0 +1,63 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and developer status.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "isDeveloper": { "type": "boolean" },
+        "createdAt": { "type": "number", "description": "Timestamp" }
+      },
+      "required": ["name", "isDeveloper", "createdAt"]
+    },
+    "AppItem": {
+      "title": "App Item",
+      "description": "An application listed on the store.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "developerId": { "type": "string" },
+        "developerName": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "iconDataUrl": { "type": "string" },
+        "fileObjectUrl": { "type": "string" },
+        "fileName": { "type": "string" },
+        "rating": { "type": "number" },
+        "downloads": { "type": "number" },
+        "size": { "type": "string" },
+        "version": { "type": "string" },
+        "createdAt": { "type": "number", "description": "Timestamp" }
+      },
+      "required": ["name", "developerId", "developerName", "description", "category", "iconDataUrl", "rating", "downloads", "version", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "User review for an app.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "text": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["userId", "userName", "rating", "text", "date"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    },
+    "apps/{appId}": {
+      "schema": { "$ref": "#/entities/AppItem" },
+      "description": "Stores apps published on the store."
+    },
+    "apps/{appId}/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Stores reviews for a specific app."
+    }
+  }
+}

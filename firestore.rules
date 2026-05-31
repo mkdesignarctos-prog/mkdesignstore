@@ -1,0 +1,100 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    
+    function isValidId(id) { 
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    
+    function isDeveloper() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isDeveloper == true;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'isDeveloper', 'createdAt']) &&
+             data.keys().size() == 3 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.isDeveloper is bool &&
+             data.createdAt is number;
+    }
+
+    match /users/{userId} {
+      allow read: if true; // Allows the app to display user context
+      allow create: if isAuthenticated() && request.auth.uid == userId && isValidUser(incoming());
+      allow update: if isAuthenticated() && request.auth.uid == userId &&
+        (
+          (incoming().diff(existing()).affectedKeys().hasOnly(['isDeveloper']) && incoming().isDeveloper is bool) ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['name']) && incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 100) ||
+          (incoming().diff(existing()).affectedKeys().hasAll(['name', 'isDeveloper']) && incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 100 && incoming().isDeveloper is bool)
+        );
+    }
+    
+    function isValidAppItem(data) {
+      return data.keys().hasAll(['name', 'developerId', 'developerName', 'description', 'category', 'iconDataUrl', 'rating', 'downloads', 'version', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.developerId is string && data.developerId.size() > 0 && data.developerId.size() <= 128 &&
+             data.developerName is string && data.developerName.size() > 0 && data.developerName.size() <= 100 &&
+             data.description is string && data.description.size() > 0 && data.description.size() <= 10000 &&
+             data.category is string && data.category.size() > 0 && data.category.size() <= 50 &&
+             data.iconDataUrl is string && data.iconDataUrl.size() > 0 && data.iconDataUrl.size() <= 5000000 &&
+             data.rating is number && data.rating >= 0 && data.rating <= 5 &&
+             data.downloads is number && data.downloads >= 0 &&
+             data.version is string && data.version.size() > 0 && data.version.size() <= 50 &&
+             data.createdAt is number &&
+             (!('fileObjectUrl' in data) || (data.fileObjectUrl is string && data.fileObjectUrl.size() <= 10000000)) &&
+             (!('fileName' in data) || (data.fileName is string && data.fileName.size() <= 500)) &&
+             (!('size' in data) || (data.size is string && data.size.size() <= 50)) &&
+             (!('reviewCount' in data) || data.reviewCount is number);
+    }
+
+    match /apps/{appId} {
+      allow read: if true; 
+      allow create: if isDeveloper() && 
+                    isValidId(appId) && 
+                    incoming().developerId == request.auth.uid &&
+                    isValidAppItem(incoming());
+      
+      allow update: if isValidAppItem(incoming()) && 
+        (
+          (isAuthenticated() && incoming().developerId == request.auth.uid && 
+           incoming().diff(existing()).affectedKeys().hasAny(['name', 'description', 'category', 'iconDataUrl', 'fileObjectUrl', 'fileName', 'size', 'version']))
+          ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['downloads']) && incoming().downloads == existing().downloads + 1)
+          ||
+          (isAuthenticated() && incoming().diff(existing()).affectedKeys().hasAny(['rating', 'reviewCount']))
+        );
+      allow delete: if isAuthenticated() && existing().developerId == request.auth.uid;
+    }
+    
+    function isValidReview(data) {
+      return data.keys().hasAll(['userId', 'userName', 'rating', 'text', 'date']) &&
+             data.keys().size() == 5 &&
+             data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128 &&
+             data.userName is string && data.userName.size() > 0 && data.userName.size() <= 100 &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             data.text is string && data.text.size() <= 2000 &&
+             data.date is string && data.date.size() > 0 && data.date.size() <= 50;
+    }
+
+    match /apps/{appId}/reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && 
+                    isValidId(appId) &&
+                    isValidId(reviewId) &&
+                    exists(/databases/$(database)/documents/apps/$(appId)) &&
+                    incoming().userId == request.auth.uid &&
+                    isValidReview(incoming());
+    }
+  }
+}
