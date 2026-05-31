@@ -39,8 +39,8 @@ export function Publish() {
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 150 * 1024) {
-        alert("O ícone deve ter no máximo 150KB.");
+      if (file.size > 100 * 1024 * 1024) {
+        alert("O ícone deve ter no máximo 100MB.");
         e.target.value = '';
         return;
       }
@@ -56,8 +56,8 @@ export function Publish() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 800 * 1024) {
-        alert("O tamanho do arquivo do app está limitado a 800KB nesta versão inicial.");
+      if (file.size > 100000 * 1024) {
+        alert("O tamanho do arquivo do app está limitado a 100.000KB (≈100MB).");
         e.target.value = '';
         return;
       }
@@ -183,7 +183,7 @@ export function Publish() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Ícone */}
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-2">Ícone do App * (512x512px)</label>
+                <label className="block text-sm font-medium text-zinc-400 mb-2">Ícone do App * (512x512px) — Max 100MB</label>
                 <div 
                   onClick={() => iconInputRef.current?.click()}
                   className="bg-zinc-950 border-2 border-dashed border-zinc-800 hover:border-mk-green-500/50 rounded-2xl w-full aspect-square flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden group"
@@ -223,7 +223,7 @@ export function Publish() {
                       <>
                         <FileBox size={48} className="mb-4" />
                         <span className="text-sm font-medium">Fazer upload do arquivo</span>
-                        <span className="text-xs mt-2 text-zinc-500">Max 800KB</span>
+                        <span className="text-xs mt-2 text-zinc-500">Max 100.000KB (~100MB)</span>
                       </>
                     )}
                   </div>
