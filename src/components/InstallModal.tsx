@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppItem } from '../types';
 import { X, ShieldCheck, Cpu, Cloud, Smartphone, Settings, Check, Activity, HardDrive, DownloadCloud, AlertTriangle } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
 
 interface InstallModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface InstallModalProps {
 }
 
 export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
+  const { installApp } = useStore();
   const [step, setStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [downloadSpeed, setDownloadSpeed] = useState('');
@@ -86,6 +88,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
       // Step 4: Decompressing & Registering on virtual host OS
       const timer = setTimeout(() => {
         setStep(5);
+        installApp(app.id); // Save app to locally installed apps list!
       }, 2000);
       return () => clearTimeout(timer);
     }

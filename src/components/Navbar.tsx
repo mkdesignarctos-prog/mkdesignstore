@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useStore } from '../context/StoreContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MonitorDown, Code2, LogOut, User } from 'lucide-react';
+import { Search, MonitorDown, Code2, LogOut } from 'lucide-react';
 import { AuthModal } from './AuthModal';
 
 export function Navbar() {

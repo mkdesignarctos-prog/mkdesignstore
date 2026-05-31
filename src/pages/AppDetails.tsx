@@ -2,14 +2,25 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Navbar } from '../components/Navbar';
-import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X, User } from 'lucide-react';
+import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X, User, Pin, Play, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { supabase } from '../lib/supabase';
 import { InstallModal } from '../components/InstallModal';
+import { AppSandbox } from '../components/AppSandbox';
 
 export function AppDetails() {
   const { id } = useParams<{ id: string }>();
-  const { getAppById, getReviewsForApp, currentUser, addReview } = useStore();
+  const { 
+    getAppById, 
+    getReviewsForApp, 
+    currentUser, 
+    addReview,
+    installedAppIds = [],
+    pinnedAppIds = [],
+    uninstallApp,
+    pinApp,
+    unpinApp,
+    incrementDownloads
+  } = useStore();
   const navigate = useNavigate();
   
   const app = id ? getAppById(id) : undefined;
@@ -22,6 +33,7 @@ export function AppDetails() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isInstallOpen, setIsInstallOpen] = useState(false);
+  const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   if (!app) {
@@ -57,16 +69,12 @@ export function AppDetails() {
     setIsDownloading(true);
     
     // Increment download globally
-    try {
-      supabase
-        .from('apps')
-        .update({ downloads: (app.downloads || 0) + 1 })
-        .eq('id', app.id)
-        .then(({ error }) => {
-          if (error) console.warn('Falha ao contar download', error);
-        });
-    } catch (e) {
-      console.warn('Erro ao atualizar downloads', e);
+    if (app) {
+      try {
+        await incrementDownloads(app.id);
+      } catch (e) {
+        console.warn('Erro ao atualizar downloads', e);
+      }
     }
       
     setTimeout(() => {
@@ -148,30 +156,96 @@ export function AppDetails() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={handleDownload}
-                disabled={isDownloading}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-mk-green-500 hover:bg-mk-green-400 text-black font-bold py-3 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)] disabled:opacity-70 disabled:cursor-wait"
-              >
-                {isDownloading ? (
-                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
-                    <Download size={20} />
-                  </motion.div>
-                ) : (
-                  <Download size={20} />
-                )}
-                <span>{isDownloading ? 'Processando...' : 'Instalar'}</span>
-              </button>
-              
-              <button 
-                onClick={handleShareClick}
-                className="w-12 h-12 flex items-center justify-center bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-xl text-zinc-300 transition-colors"
-                title="Compartilhar"
-              >
-                <Share2 size={20} />
-              </button>
-            </div>
+            {(() => {
+              const isInstalled = (installedAppIds || []).includes(app.id);
+              const isPinned = (pinnedAppIds || []).includes(app.id);
+
+              return (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    {!isInstalled ? (
+                      <button 
+                        onClick={handleDownload}
+                        disabled={isDownloading}
+                        className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-mk-green-500 hover:bg-mk-green-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)] disabled:opacity-70 disabled:cursor-wait uppercase text-xs tracking-wider"
+                      >
+                        {isDownloading ? (
+                          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
+                            <Download size={18} />
+                          </motion.div>
+                        ) : (
+                          <Download size={18} />
+                        )}
+                        <span>{isDownloading ? 'Processando...' : 'Instalar'}</span>
+                      </button>
+                    ) : (
+                      <>
+                        {/* Run/Launch Button */}
+                        <button 
+                          onClick={() => setIsSandboxOpen(true)}
+                          className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-mk-green-500 to-emerald-500 hover:from-mk-green-400 hover:to-emerald-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(57,255,20,0.25)] text-xs uppercase tracking-wider animate-in fade-in duration-200"
+                        >
+                          <Play size={16} fill="black" />
+                          <span>Lançar Aplicativo</span>
+                        </button>
+ 
+                        {/* PINS BUTTON (option to pin to Home Screen) */}
+                        <button 
+                          onClick={() => isPinned ? unpinApp(app.id) : pinApp(app.id)}
+                          className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-all ${isPinned ? 'bg-mk-green-400/10 border-mk-green-500/30 text-mk-green-400 shadow-[0_0_15px_rgba(57,255,20,0.15)]' : 'bg-zinc-900 border-zinc-800 hover:bg-zinc-800 text-zinc-300 hover:text-white'}`}
+                          title={isPinned ? 'Desfixar da Tela Inicial' : 'Fixar na Tela Inicial'}
+                        >
+                          <Pin size={18} className={isPinned ? 'fill-mk-green-400 text-mk-green-400' : ''} />
+                        </button>
+ 
+                        {/* UNINSTALL BUTTON */}
+                        <button 
+                          onClick={() => {
+                            if (window.confirm('Tem certeza que deseja desinstalar este aplicativo?')) {
+                              uninstallApp(app.id);
+                            }
+                          }}
+                          className="w-12 h-12 flex items-center justify-center bg-zinc-900 border border-zinc-800 hover:bg-red-950/20 hover:border-red-900/30 hover:text-red-400 rounded-xl text-zinc-400 transition-colors"
+                          title="Desinstalar aplicativo"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </>
+                    )}
+                    
+                    <button 
+                      onClick={handleShareClick}
+                      className="w-12 h-12 flex items-center justify-center bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-xl text-zinc-300 transition-colors"
+                      title="Compartilhar"
+                    >
+                      <Share2 size={18} />
+                    </button>
+                  </div>
+
+                  {/* Status hints */}
+                  {isInstalled && (
+                    <div className="flex flex-col gap-1.5 p-3.5 bg-zinc-900/30 border border-zinc-850 rounded-2xl max-w-sm">
+                      <p className="text-[11px] text-zinc-400 flex items-center gap-1.5 font-sans leading-tight">
+                        <Check size={14} className="text-mk-green-400 shrink-0" />
+                        <span>Este aplicativo está instalado no host sandbox virtual.</span>
+                      </p>
+                      {isPinned ? (
+                        <p className="text-[10px] text-mk-green-400 font-mono flex items-center gap-1">
+                          📌 Fixado na sua Tela Inicial como atalho principal.
+                        </p>
+                      ) : (
+                        <button 
+                          onClick={() => pinApp(app.id)}
+                          className="text-[10px] text-zinc-500 hover:text-zinc-300 font-mono text-left underline w-fit"
+                        >
+                          Deseja fixar na sua Tela Inicial?
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             
             <div className="mt-4 flex items-center gap-2 text-xs text-mk-green-500 font-medium bg-mk-green-500/10 w-fit px-3 py-1.5 rounded-full border border-mk-green-500/20">
               <ShieldCheck size={14} />
@@ -349,6 +423,7 @@ export function AppDetails() {
         )}
       </AnimatePresence>
       <InstallModal isOpen={isInstallOpen} onClose={() => setIsInstallOpen(false)} app={app} />
+      <AppSandbox isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} app={app} />
     </div>
   );
 }

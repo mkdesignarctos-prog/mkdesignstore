@@ -203,7 +203,7 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
               
               <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-zinc-500 bg-zinc-950/50 py-3 rounded-xl border border-zinc-900">
                 <ShieldCheck size={14} className="text-mk-green-500" />
-                <span>Autenticação Integrada Supabase</span>
+                <span>Autenticação Segura Supabase</span>
               </div>
             </div>
           </motion.div>

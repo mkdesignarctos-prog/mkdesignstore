@@ -27,5 +27,5 @@ export interface AppItem {
   downloads: number;
   size: string;
   version: string;
-  createdAt: string;
+  createdAt: string | number;
 }
