@@ -14,8 +14,15 @@
 
 body {
   @apply text-zinc-100 font-sans antialiased min-h-screen tracking-tight;
-  background: linear-gradient(180deg, #000000 0%, #001200 40%, #064006 100%);
+  background-image: 
+    linear-gradient(rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 255, 20, 0.1) 1px, transparent 1px),
+    url('/bg-controller.jpg');
+  background-size: 40px 40px, 40px 40px, cover;
+  background-position: center;
   background-attachment: fixed;
+  background-repeat: repeat, repeat, no-repeat;
+  background-color: #000000;
 }
 
 h1, h2, h3, h4, h5, h6 {
