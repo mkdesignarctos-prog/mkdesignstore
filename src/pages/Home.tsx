@@ -325,7 +325,7 @@ export function Home() {
                         to={`/app/${app.id}`}
                         className="text-[10px] font-mono tracking-wider font-extrabold text-black bg-mk-blue-400 hover:bg-mk-blue-300 py-1.5 px-4 rounded-lg transition-colors flex items-center gap-1 uppercase"
                       >
-                        <span>Instalar</span>
+                        <span>Instalar no Celular</span>
                       </Link>
                     </div>
                   </motion.div>
@@ -509,9 +509,9 @@ export function Home() {
               
               <div className="bg-zinc-900/60 backdrop-blur-md border border-zinc-850 px-4 py-3 rounded-2xl max-w-sm shadow-md flex items-center gap-3">
                 <div className="flex-1">
-                  <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest mb-1 font-bold">Status do Sistema Host</p>
+                  <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest mb-1 font-bold">Status do Android Host</p>
                   <div className="text-xs text-zinc-300 leading-relaxed font-sans">
-                    Banco Supabase: <strong className="text-mk-blue-400 font-bold">CONECTADO</strong> • Carregados: <span className="text-white font-bold">{installedApps.length}</span>
+                    Permissões: <strong className="text-mk-blue-400 font-bold">CONCEDIDAS</strong> • Apps Instalados: <span className="text-white font-bold">{installedApps.length}</span>
                   </div>
                 </div>
               </div>

@@ -240,7 +240,7 @@ export function AppDetails() {
                         ) : (
                           <Download size={18} />
                         )}
-                        <span>{isDownloading ? 'Processando...' : 'Instalar'}</span>
+                        <span>{isDownloading ? 'Solicitando...' : 'Instalar no Celular'}</span>
                       </button>
                     ) : (
                       <>
@@ -250,7 +250,7 @@ export function AppDetails() {
                           className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-mk-blue-500 to-cyan-500 hover:from-mk-blue-400 hover:to-cyan-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(0,210,255,0.25)] text-xs uppercase tracking-wider animate-in fade-in duration-200"
                         >
                           <Play size={16} fill="black" />
-                          <span>Lançar Aplicativo</span>
+                          <span>Iniciar Native Simulation</span>
                         </button>
  
                         {/* PINS BUTTON (option to pin to Home Screen) */}
@@ -291,7 +291,7 @@ export function AppDetails() {
                     <div className="flex flex-col gap-1.5 p-3.5 bg-zinc-900/30 border border-zinc-850 rounded-2xl max-w-sm">
                       <p className="text-[11px] text-zinc-400 flex items-center gap-1.5 font-sans leading-tight">
                         <Check size={14} className="text-mk-blue-400 shrink-0" />
-                        <span>Este aplicativo está instalado no host sandbox virtual.</span>
+                        <span>Este aplicativo foi instalado com sucesso no seu dispositivo virtual local.</span>
                       </p>
                       {isPinned ? (
                         <p className="text-[10px] text-mk-blue-400 font-mono flex items-center gap-1">

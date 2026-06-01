@@ -39,6 +39,11 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
   useEffect(() => {
     if (!isOpen || step === 0) return;
 
+    if (step === 0.5) {
+      // Permission step - wait for user interaction usually, but here we can simulate a system check
+      return;
+    }
+
     if (step === 1) {
       // Step 1: Initializing Connection (Cloudflare Routing & Package Analysis)
       const timer = setTimeout(() => {
@@ -53,6 +58,17 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
         setProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
+            
+            // Trigger actual download if file exists
+            if (app.fileObjectUrl) {
+              const link = document.createElement('a');
+              link.href = app.fileObjectUrl;
+              link.download = app.fileName || `${app.name.toLowerCase().replace(/ /g, '_')}_install.zip`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }
+            
             setTimeout(() => {
               setStep(3);
             }, 500);
@@ -92,16 +108,20 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, step, app.size]);
+  }, [isOpen, step, app.size, app.fileObjectUrl, app.fileName, app.name, app.id, installApp]);
 
   const handleStartInstaller = () => {
-    setStep(1);
-    setProgress(0);
+    setStep(0.5); // Go to permission request first
+  };
+
+  const handleGrantPermission = () => {
+    setStep(1); // Proceed back to flow
   };
 
   const getStepHeadline = () => {
     switch(step) {
       case 0: return 'Preparar Instalação';
+      case 0.5: return 'Permissão de Sistema Requerida';
       case 1: return 'Conectando à CDN Cloudflare...';
       case 2: return `Fazendo Download Seguro (${app.size})...`;
       case 3: return 'Análise de Segurança & MD5 Hash Check...';
@@ -129,7 +149,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 30 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 p-4 max-h-[90vh] overflow-y-auto"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-[60] p-4 max-h-[90vh] overflow-y-auto"
           >
             <div className="bg-zinc-950 border-2 border-zinc-900 rounded-3xl p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-mk-blue-600 via-mk-blue-400 to-mk-blue-600 animate-pulse"></div>
@@ -200,8 +220,46 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                   </motion.div>
                 )}
 
+                {/* STEP 0.5: PERMISSION REQUEST (CRITICAL REQUIREMENT) */}
+                {step === 0.5 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    className="flex flex-col items-center justify-center py-4 px-2"
+                  >
+                    <div className="w-full bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl relative">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-mk-blue-500/10 rounded-xl">
+                          <ShieldCheck size={24} className="text-mk-blue-400" />
+                        </div>
+                        <h4 className="text-white font-bold">Solicitação de Acesso</h4>
+                      </div>
+                      
+                      <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+                        Para instalar <strong className="text-white">{app.name}</strong>, o sistema requer permissão para gravar na memória interna e registrar o executável no host principal do seu dispositivo {targetPhoneOS}.
+                      </p>
+                      
+                      <div className="flex flex-col gap-3">
+                        <button 
+                          onClick={handleGrantPermission}
+                          className="w-full bg-mk-blue-500 hover:bg-mk-blue-400 text-black font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2"
+                        >
+                          <Check size={18} />
+                          Conceder Permissão e Instalar
+                        </button>
+                        <button 
+                          onClick={() => setStep(0)}
+                          className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold py-3.5 rounded-xl transition-all"
+                        >
+                          Negar
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* STEP 1 & UP: Progress tracking animations */}
-                {step > 0 && step < 5 && (
+                {step > 0.5 && step < 5 && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 py-2">
                     
                     {/* Visual Status Indicator Card */}

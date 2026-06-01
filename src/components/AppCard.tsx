@@ -84,7 +84,7 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
           </div>
 
           <div className="flex items-center gap-1 bg-zinc-950 group-hover:bg-mk-blue-500 text-zinc-400 group-hover:text-black py-1.5 px-3 rounded-xl transition-all duration-300 border border-zinc-900 group-hover:border-mk-blue-500 pr-2">
-            <span className="text-[10px] font-mono font-bold tracking-wider mr-1 group-hover:text-black">INSTALL</span>
+            <span className="text-[10px] font-mono font-bold tracking-wider mr-1 group-hover:text-black uppercase">Instalar</span>
             <Download size={12} className="animate-bounce" style={{ animationDuration: '2s' }} />
           </div>
         </div>
