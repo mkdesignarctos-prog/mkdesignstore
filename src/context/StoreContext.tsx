@@ -310,12 +310,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithPassword = async (username: string, password: string) => {
     if (isSupabaseConfigured) {
-      const email = username.includes('@') ? username : `${username.trim()}@placeholder.com`;
+      // Normalize username for email mapping: remove internal spaces and normalize case
+      const normalizedUsername = username.trim().toLowerCase().replace(/\s+/g, '.');
+      const email = username.includes('@') ? username.trim() : `${normalizedUsername}@mkplay.internal`;
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
-      if (error) throw error;
+      
+      if (error) {
+        // Handle specific supabase errors
+        if (error.message.includes('Email not confirmed')) {
+          throw new Error('Este email ainda não foi confirmado. Verifique sua caixa de entrada.');
+        }
+        throw error;
+      }
 
       if (data.user) {
         let isDeveloper = false;
@@ -324,7 +334,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             .from('profiles')
             .select('is_developer')
             .eq('id', data.user.id)
-            .single();
+            .maybeSingle();
           if (profile) {
             isDeveloper = !!profile.is_developer;
           }
@@ -367,7 +377,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const signUpWithPassword = async (username: string, password: string) => {
     if (isSupabaseConfigured) {
-      const email = username.includes('@') ? username : `${username.trim()}@placeholder.com`;
+      // Normalize username for email mapping
+      const normalizedUsername = username.trim().toLowerCase().replace(/\s+/g, '.');
+      const email = username.includes('@') ? username.trim() : `${normalizedUsername}@mkplay.internal`;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -378,9 +391,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           }
         }
       });
+      
       if (error) throw error;
 
-      if (data.user) {
+      // If session is null but user exists, it means confirmation is required
+      if (data.user && !data.session) {
+        // We throw a specific message that the modal can catch
+        throw new Error('CONFIRMATION_REQUIRED');
+      }
+
+      if (data.user && data.session) {
         const loggedUser: User = {
           id: data.user.id,
           name: username.trim(),

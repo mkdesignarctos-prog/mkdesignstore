@@ -44,10 +44,20 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
 
     try {
       if (isSignUp) {
-        await signUpWithPassword(username, password);
-        setSuccessMessage('Conta criada com sucesso! Se você já puder logar, faça login abaixo.');
-        setIsSignUp(false); // Toggle back to login mode so they can sign in
-        setPassword(''); // Reset password for login
+        try {
+          await signUpWithPassword(username, password);
+          setSuccessMessage('Conta criada com sucesso! Você já pode entrar.');
+          setIsSignUp(false);
+          setPassword('');
+        } catch (err: any) {
+          if (err.message === 'CONFIRMATION_REQUIRED') {
+            setSuccessMessage('Conta cadastrada! Verifique o email (ou spam) para confirmar sua conta antes de entrar.');
+            setIsSignUp(false);
+            setPassword('');
+          } else {
+            throw err;
+          }
+        }
       } else {
         await loginWithPassword(username, password);
         onClose();
@@ -58,12 +68,17 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
       
       // Parse more friendly error messages
       let msg = err.message || 'Erro ao realizar a operação. Verifique seus dados.';
-      if (msg.includes('Invalid login credentials') || msg.includes('does not match')) {
+      
+      if (msg.includes('Invalid login credentials') || msg.includes('does not match') || msg.includes('custom-error-wrong-password')) {
         msg = 'Usuário ou senha incorretos.';
       } else if (msg.includes('already registered') || msg.includes('user_already_exists')) {
-        msg = 'Este nome de usuário já está sendo utilizado.';
+        msg = 'Este nome de usuário ou email já está sendo utilizado.';
       } else if (msg.includes('Signup is disabled')) {
-        msg = 'O cadastro de novas contas está desativado nesta instância do banco de dados.';
+        msg = 'O cadastro de novas contas está desativado no momento.';
+      } else if (msg.includes('Email not confirmed')) {
+        msg = 'Seu email ainda não foi confirmado. Verifique sua caixa de entrada.';
+      } else if (msg.includes('rate limit') || msg.includes('too many requests')) {
+        msg = 'Muitas tentativas. Tente novamente em alguns minutos.';
       }
       
       setErrorMessage(msg);
