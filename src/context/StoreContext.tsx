@@ -76,12 +76,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               .from('profiles')
               .select('is_developer')
               .eq('id', session.user.id)
-              .single();
+              .maybeSingle(); // Usando maybeSingle para evitar erro se não existir perfil ainda
+
             if (!error && data) {
               isDeveloper = !!data.is_developer;
             }
           } catch (e) {
-            console.warn('Error fetching developer status from profiles:', e);
+            console.warn('Erro ao buscar status do desenvolvedor nos perfis:', e);
           }
           const loggedUser: User = {
             id: session.user.id,
@@ -143,7 +144,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const fetchApps = async () => {
     let dbAppsList: AppItem[] = [];
-    let fetchedFromSupabase = false;
 
     if (isSupabaseConfigured) {
       try {
@@ -156,26 +156,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           dbAppsList = data.map((d: any) => ({
             id: d.id,
             name: d.name,
-            developerId: d.developer_id || d.developerId,
-            developerName: d.developer_name || d.developerName,
+            developerId: d.developer_id ?? d.developerId,
+            developerName: d.developer_name ?? d.developerName,
             description: d.description,
             category: d.category,
-            iconDataUrl: d.icon_data_url || d.iconDataUrl,
-            fileObjectUrl: d.file_object_url || d.fileObjectUrl,
-            fileName: d.file_name || d.fileName,
+            iconDataUrl: d.icon_data_url ?? d.iconDataUrl,
+            fileObjectUrl: d.file_object_url ?? d.fileObjectUrl,
+            fileName: d.file_name ?? d.fileName,
             rating: Number(d.rating) || 0,
             reviews: [],
             downloads: Number(d.downloads) || 0,
             size: d.size || '0 MB',
             version: d.version || '1.0.0',
-            createdAt: d.created_at || d.createdAt || Date.now()
+            createdAt: d.created_at ?? d.createdAt ?? Date.now()
           }));
-          fetchedFromSupabase = true;
         } else if (error) {
-          console.warn('Supabase apps load error:', error.message);
+          console.warn('Erro ao carregar apps do Supabase:', error.message);
         }
       } catch (err) {
-        console.warn('Supabase fetchApps error, falling back:', err);
+        console.warn('Erro fetchApps no Supabase, usando fallback:', err);
       }
     }
 
@@ -205,7 +204,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const fetchReviews = async (appId: string) => {
     let dbReviewsList: Review[] = [];
-    let fetchedFromSupabase = false;
 
     if (isSupabaseConfigured) {
       try {
@@ -217,15 +215,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (!error && data) {
           dbReviewsList = data.map((r: any) => ({
             id: r.id,
-            userName: r.user_name || r.userName,
+            userName: r.user_name ?? r.userName,
             rating: Number(r.rating) || 5,
             text: r.text || '',
-            date: r.created_at || r.date || new Date().toISOString()
+            date: r.created_at ?? r.date ?? new Date().toISOString()
           }));
-          fetchedFromSupabase = true;
         }
       } catch (err) {
-        console.warn(`Supabase fetchReviews error for ${appId}:`, err);
+        console.warn(`Erro ao buscar avaliações para ${appId} no Supabase:`, err);
       }
     }
 
@@ -471,7 +468,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             created_at: new Date().toISOString()
           }]);
       } catch (e) {
-        console.warn('Failed publishing app with Supabase:', e);
+        console.warn('Erro ao publicar app no Supabase:', e);
       }
     }
     
@@ -516,7 +513,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           .insert([{
             id: rId,
             app_id: appId,
-            user_id: currentUser?.id || 'anonymous',
+            user_id: currentUser?.id,
             user_name: reviewInfo.userName,
             rating: reviewInfo.rating,
             text: reviewInfo.text,
@@ -536,12 +533,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
                 .update({ rating: avgRating })
                 .eq('id', appId);
             } catch (errUp) {
-              console.warn('Could not update avg rating in Supabase:', errUp);
+              console.warn('Não foi possível atualizar a média de avaliação no Supabase:', errUp);
             }
           }
         }
       } catch (e) {
-        console.warn('Failed inserting review with Supabase:', e);
+        console.warn('Erro ao inserir avaliação no Supabase:', e);
       }
     }
 
