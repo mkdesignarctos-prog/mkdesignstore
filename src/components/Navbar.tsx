@@ -56,7 +56,7 @@ export function Navbar() {
             {!currentUser ? (
               <button 
                 onClick={() => setIsAuthOpen(true)}
-                className="text-[11px] font-extrabold uppercase tracking-widest text-mk-blue-400 hover:text-black px-6 py-2 bg-mk-blue-950/30 hover:bg-mk-blue-400 border border-mk-blue-500/35 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(14,165,233,0.05)] active:scale-95"
+                className="text-[11px] font-extrabold uppercase tracking-widest text-yellow-400 hover:text-black px-6 py-2 bg-yellow-950/30 hover:bg-yellow-400 border border-yellow-500/35 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(234,179,8,0.05)] active:scale-95"
               >
                 Acessar Conta
               </button>

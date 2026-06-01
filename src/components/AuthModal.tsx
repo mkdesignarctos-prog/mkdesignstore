@@ -90,7 +90,7 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50 p-6"
           >
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-mk-blue-600 via-mk-blue-400 to-mk-blue-600"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600"></div>
               
               <button 
                 onClick={onClose} 
@@ -100,8 +100,8 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
               </button>
 
               <div className="flex flex-col items-center mb-6 mt-2">
-                <div className="w-16 h-16 bg-zinc-950 border border-mk-blue-500/30 rounded-2xl flex items-center justify-center mb-4 text-mk-blue-400 shadow-[0_0_20px_rgba(14,165,233,0.15)] relative">
-                  <div className="absolute inset-0 bg-mk-blue-400/5 rounded-2xl blur-xl"></div>
+                <div className="w-16 h-16 bg-zinc-950 border border-yellow-500/30 rounded-2xl flex items-center justify-center mb-4 text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)] relative">
+                  <div className="absolute inset-0 bg-yellow-400/5 rounded-2xl blur-xl"></div>
                   <Gamepad2 size={32} className="relative z-10 animate-pulse" />
                 </div>
                 <h2 className="text-2xl font-display font-bold text-white tracking-tight mb-1">
@@ -147,7 +147,7 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
                 <motion.div 
                   initial={{ opacity: 0, y: -5 }} 
                   animate={{ opacity: 1, y: 0 }} 
-                  className="mb-4 p-3 bg-mk-blue-950/20 border border-mk-blue-500/35 text-mk-blue-400 rounded-xl text-xs text-center font-medium"
+                  className="mb-4 p-3 bg-yellow-950/20 border border-yellow-500/35 text-yellow-400 rounded-xl text-xs text-center font-medium"
                 >
                   {successMessage}
                 </motion.div>
@@ -166,7 +166,7 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder={isSignUp ? 'ex: supermario' : 'ex: supermario ou email'}
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-blue-500/50 hover:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-zinc-600 text-sm outline-none transition-all focus:ring-1 focus:ring-mk-blue-500/20"
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-yellow-500/50 hover:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-zinc-600 text-sm outline-none transition-all focus:ring-1 focus:ring-yellow-500/20"
                       required
                     />
                   </div>
@@ -184,7 +184,7 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-blue-500/50 hover:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-zinc-600 text-sm outline-none transition-all focus:ring-1 focus:ring-mk-blue-500/20"
+                      className="w-full bg-zinc-950 border border-zinc-800 focus:border-yellow-500/50 hover:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-zinc-600 text-sm outline-none transition-all focus:ring-1 focus:ring-yellow-500/20"
                       required
                     />
                   </div>
@@ -194,7 +194,7 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-mk-blue-600 to-mk-blue-500 hover:from-mk-blue-500 hover:to-mk-blue-400 text-black font-semibold rounded-xl py-3 px-4 shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 group"
+                  className="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-semibold rounded-xl py-3 px-4 shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 group"
                 >
                   <span>{isLoading ? 'Modificando...' : (isSignUp ? 'Registrar' : 'Entrar com Senha')}</span>
                   {!isLoading && <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />}
@@ -202,7 +202,7 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
               </form>
               
               <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-zinc-500 bg-zinc-950/50 py-3 rounded-xl border border-zinc-900">
-                <ShieldCheck size={14} className="text-mk-blue-500" />
+                <ShieldCheck size={14} className="text-yellow-500" />
                 <span>Autenticação Segura Supabase</span>
               </div>
             </div>
