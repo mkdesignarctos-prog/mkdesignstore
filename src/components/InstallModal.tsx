@@ -132,7 +132,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 p-4 max-h-[90vh] overflow-y-auto"
           >
             <div className="bg-zinc-950 border-2 border-zinc-900 rounded-3xl p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.9)] relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-mk-green-600 via-mk-green-400 to-mk-green-600 animate-pulse"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-mk-blue-600 via-mk-blue-400 to-mk-blue-600 animate-pulse"></div>
               
               <button 
                 onClick={onClose} 
@@ -150,7 +150,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                 />
                 <div>
                   <h3 className="text-white font-extrabold text-lg tracking-tight leading-tight">{app.name}</h3>
-                  <p className="text-[10px] uppercase font-mono tracking-wider font-extrabold text-mk-green-400 mt-0.5">
+                  <p className="text-[10px] uppercase font-mono tracking-wider font-extrabold text-mk-blue-400 mt-0.5">
                     Instalador Premium • {app.size === 'Variante' ? 'Sub-Giga' : app.size}
                   </p>
                 </div>
@@ -164,7 +164,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                     <div className="p-4 rounded-2xl bg-zinc-900/60 border border-zinc-850/80">
                       <div className="flex gap-3">
-                        <Smartphone className="text-mk-green-400 shrink-0 mt-0.5" size={18} />
+                        <Smartphone className="text-mk-blue-400 shrink-0 mt-0.5" size={18} />
                         <div>
                           <h4 className="text-sm font-bold text-white mb-1">Instalação Direta no Dispositivo</h4>
                           <p className="text-xs text-zinc-400 leading-relaxed font-light">
@@ -181,7 +181,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                           key={os}
                           type="button"
                           onClick={() => setTargetPhoneOS(os)}
-                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${targetPhoneOS === os ? 'bg-zinc-800 text-mk-green-400 border border-zinc-700/60' : 'text-zinc-500 hover:text-zinc-300'}`}
+                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${targetPhoneOS === os ? 'bg-zinc-800 text-mk-blue-400 border border-zinc-700/60' : 'text-zinc-500 hover:text-zinc-300'}`}
                         >
                           Dispositivo {os}
                         </button>
@@ -191,7 +191,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                     <div className="pt-2">
                       <button
                         onClick={handleStartInstaller}
-                        className="w-full bg-gradient-to-r from-mk-green-600 to-mk-green-500 hover:from-mk-green-500 hover:to-mk-green-400 text-black font-extrabold text-xs tracking-widest uppercase py-4 rounded-xl shadow-[0_0_20px_rgba(57,255,20,0.15)] transition-all flex items-center justify-center gap-2"
+                        className="w-full bg-gradient-to-r from-mk-blue-600 to-mk-blue-500 hover:from-mk-blue-500 hover:to-mk-blue-400 text-black font-extrabold text-xs tracking-widest uppercase py-4 rounded-xl shadow-[0_0_20px_rgba(14,165,233,0.15)] transition-all flex items-center justify-center gap-2"
                       >
                         <DownloadCloud size={16} />
                         <span>Iniciar Instalação Direta ({targetPhoneOS})</span>
@@ -206,7 +206,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                     
                     {/* Visual Status Indicator Card */}
                     <div className="flex items-center gap-4 bg-zinc-900/40 p-4 rounded-2xl border border-zinc-900/80">
-                      <div className="w-10 h-10 bg-zinc-950 border border-zinc-850 rounded-xl flex items-center justify-center text-mk-green-400">
+                      <div className="w-10 h-10 bg-zinc-950 border border-zinc-850 rounded-xl flex items-center justify-center text-mk-blue-400">
                         {step === 1 && <Cloud className="animate-pulse" size={20} />}
                         {step === 2 && <DownloadCloud className="animate-bounce" size={20} />}
                         {step === 3 && <ShieldCheck className="animate-pulse" size={20} />}
@@ -224,7 +224,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                         <div>
                           <span className="text-zinc-500 block">Velocidade de Banda:</span>
                           <span className="font-mono text-white font-extrabold flex items-center gap-1.5 mt-0.5">
-                            <Activity size={12} className="text-mk-green-400" />
+                            <Activity size={12} className="text-mk-blue-400" />
                             {downloadSpeed}
                           </span>
                         </div>
@@ -239,11 +239,11 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs pl-1">
                         <span className="text-zinc-400 font-semibold">Progresso Geral</span>
-                        <span className="font-mono text-mk-green-400 font-extrabold">{step === 2 ? `${Math.round(progress)}%` : (step > 2 ? '100%' : 'Aguardando...')}</span>
+                        <span className="font-mono text-mk-blue-400 font-extrabold">{step === 2 ? `${Math.round(progress)}%` : (step > 2 ? '100%' : 'Aguardando...')}</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-850">
                         <motion.div 
-                          className="h-full bg-gradient-to-r from-mk-green-600 via-mk-green-400 to-mk-green-600"
+                          className="h-full bg-gradient-to-r from-mk-blue-600 via-mk-blue-400 to-mk-blue-600"
                           style={{ width: step === 2 ? `${progress}%` : (step > 2 ? '100%' : '4%') }}
                           transition={{ ease: 'easeOut' }}
                         />
@@ -263,7 +263,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
                     animate={{ opacity: 1, scale: 1 }} 
                     className="space-y-5 text-center flex flex-col items-center py-2"
                   >
-                    <div className="w-16 h-16 bg-mk-green-950/30 border-2 border-mk-green-500 rounded-full flex items-center justify-center text-mk-green-400 shadow-[0_0_25px_rgba(57,255,20,0.15)] animate-bounce" style={{ animationDuration: '1.5s' }}>
+                    <div className="w-16 h-16 bg-mk-blue-950/30 border-2 border-mk-blue-500 rounded-full flex items-center justify-center text-mk-blue-400 shadow-[0_0_25px_rgba(14,165,233,0.15)] animate-bounce" style={{ animationDuration: '1.5s' }}>
                       <Check size={32} />
                     </div>
                     
@@ -276,7 +276,7 @@ export function InstallModal({ isOpen, onClose, app }: InstallModalProps) {
 
                     <div className="p-3.5 bg-zinc-900/60 border border-zinc-900 rounded-2xl w-full text-left">
                       <h5 className="text-[11px] font-bold text-white uppercase tracking-wider font-mono mb-1 ml-1 flex items-center gap-1.5">
-                        <HardDrive size={13} className="text-mk-green-400" />
+                        <HardDrive size={13} className="text-mk-blue-400" />
                         Anotação de Sistema do Celular:
                       </h5>
                       <ul className="text-[11px] text-zinc-400 space-y-1 list-disc pl-4 font-light">

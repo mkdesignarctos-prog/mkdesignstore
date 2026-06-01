@@ -118,15 +118,15 @@ export function Home() {
       {/* Hero Section */}
       <div className="relative overflow-hidden border-b border-zinc-900 bg-zinc-950/25">
         {/* Decorative backdrop gradients */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-mk-green-950/20 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute top-[-100px] left-1/3 w-[600px] h-[300px] bg-mk-green-500/5 blur-[140px] rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-mk-blue-950/20 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute top-[-100px] left-1/3 w-[600px] h-[300px] bg-mk-blue-500/5 blur-[140px] rounded-full pointer-events-none" />
         
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-20 pb-24">
           <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-mk-green-500/35 text-mk-green-400 bg-transparent text-[10px] font-bold font-mono tracking-widest uppercase mb-6 shadow-[0_0_20px_rgba(57,255,20,0.08)] font-sans"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-mk-blue-500/35 text-mk-blue-400 bg-transparent text-[10px] font-bold font-mono tracking-widest uppercase mb-6 shadow-[0_0_20px_rgba(14,165,233,0.08)] font-sans"
           >
             <Sparkles size={12} className="animate-pulse" />
             <span>Curadoria Exclusiva de Aplicativos</span>
@@ -138,7 +138,7 @@ export function Home() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl sm:text-6xl lg:text-7xl font-display font-extrabold text-white tracking-tighter leading-[1.1] max-w-4xl"
           >
-            A próxima geração da <span className="text-transparent bg-clip-text bg-gradient-to-r from-mk-green-400 via-mk-green-200 to-white drop-shadow-[0_2px_10px_rgba(57,255,20,0.15)]">distribuição indie.</span>
+            A próxima geração da <span className="text-transparent bg-clip-text bg-gradient-to-r from-mk-blue-400 via-mk-blue-200 to-white drop-shadow-[0_2px_10px_rgba(14,165,233,0.15)]">distribuição indie.</span>
           </motion.h1>
           
           <motion.p 
@@ -157,11 +157,11 @@ export function Home() {
             className="mt-10 flex flex-wrap gap-4 items-center"
           >
             <div className="flex items-center gap-2.5 text-xs text-zinc-300 bg-zinc-900/60 backdrop-blur-md px-4 py-2.5 rounded-xl border border-zinc-800/80 shadow-md">
-              <ShieldCheck className="text-mk-green-400" size={16} />
+              <ShieldCheck className="text-mk-blue-400" size={16} />
               <span className="font-semibold text-zinc-300">Auditoria de Código Integrada</span>
             </div>
             <div className="flex items-center gap-2.5 text-xs text-zinc-300 bg-zinc-900/60 backdrop-blur-md px-4 py-2.5 rounded-xl border border-zinc-800/80 shadow-md">
-              <Zap className="text-mk-green-400" size={16} />
+              <Zap className="text-mk-blue-400" size={16} />
               <span className="font-semibold text-zinc-300">Downloads Sem Limite de Velocidade</span>
             </div>
           </motion.div>
@@ -175,19 +175,19 @@ export function Home() {
           >
             <button 
               onClick={() => setActiveView('store')}
-              className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider ${activeView === 'store' ? 'bg-zinc-900 text-mk-green-400 border border-zinc-800/60 shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+              className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider ${activeView === 'store' ? 'bg-zinc-900 text-mk-blue-400 border border-zinc-800/60 shadow-lg' : 'text-zinc-500 hover:text-white'}`}
             >
               <LayoutGrid size={15} />
               <span>Explorar Loja</span>
             </button>
             <button 
               onClick={() => setActiveView('desktop')}
-              className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider relative ${activeView === 'desktop' ? 'bg-zinc-900 text-mk-green-400 border border-zinc-800/60 shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+              className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider relative ${activeView === 'desktop' ? 'bg-zinc-900 text-mk-blue-400 border border-zinc-800/60 shadow-lg' : 'text-zinc-500 hover:text-white'}`}
             >
               <Smartphone size={15} />
               <span>Minha Tela Inicial</span>
               {installedApps.length > 0 && (
-                <span className="bg-mk-green-500 text-black font-extrabold text-[9px] px-2 py-0.5 rounded-full font-mono">
+                <span className="bg-mk-blue-500 text-black font-extrabold text-[9px] px-2 py-0.5 rounded-full font-mono">
                   {installedApps.length}
                 </span>
               )}
@@ -211,8 +211,8 @@ export function Home() {
                 className="relative bg-gradient-to-r from-zinc-950 via-zinc-900/80 to-zinc-950 border border-zinc-850 rounded-3xl p-6 md:p-10 overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.6)] group"
               >
                 {/* Visual high-end lighting behind spotlight */}
-                <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-80 h-80 bg-mk-green-500/10 blur-[100px] rounded-full pointing-events-none group-hover:bg-mk-green-500/15 transition-all duration-700" />
-                <div className="absolute top-0 right-0 py-1.5 px-4 bg-mk-green-500 text-black text-[9px] tracking-widest font-mono font-extrabold uppercase rounded-bl-2xl shadow-lg flex items-center gap-1.5 z-10">
+                <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-80 h-80 bg-mk-blue-500/10 blur-[100px] rounded-full pointing-events-none group-hover:bg-mk-blue-500/15 transition-all duration-700" />
+                <div className="absolute top-0 right-0 py-1.5 px-4 bg-mk-blue-500 text-black text-[9px] tracking-widest font-mono font-extrabold uppercase rounded-bl-2xl shadow-lg flex items-center gap-1.5 z-10">
                   <Trophy size={11} className="animate-spin" style={{ animationDuration: '6s' }} />
                   Destaque Máximo
                 </div>
@@ -226,7 +226,7 @@ export function Home() {
                   
                   <div className="flex-1 text-center md:text-left">
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-2">
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold text-mk-green-400 bg-mk-green-950/40 border border-mk-green-500/25 px-2.5 py-0.5 rounded-full">
+                      <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold text-mk-blue-400 bg-mk-blue-950/40 border border-mk-blue-500/25 px-2.5 py-0.5 rounded-full">
                         {spotlightApp.category}
                       </span>
                       <span className="text-zinc-500 text-xs">• de {spotlightApp.developerName}</span>
@@ -242,12 +242,12 @@ export function Home() {
                     
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-xs text-zinc-500">
                       <div className="flex items-center gap-1.5">
-                        <Star size={14} className="text-mk-green-400 fill-mk-green-400" />
+                        <Star size={14} className="text-mk-blue-400 fill-mk-blue-400" />
                         <span className="text-white font-bold">{spotlightApp.rating > 0 ? spotlightApp.rating.toFixed(1) : 'Novo'}</span>
                         <span>Avaliação</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Zap size={14} className="text-mk-green-400" />
+                        <Zap size={14} className="text-mk-blue-400" />
                         <span className="text-white font-bold">{((spotlightApp.downloads || 0) + 1).toLocaleString()}</span>
                         <span>Modulações</span>
                       </div>
@@ -261,7 +261,7 @@ export function Home() {
                   <div className="w-full md:w-auto flex flex-col gap-2.5 self-center">
                     <Link 
                       to={`/app/${spotlightApp.id}`}
-                      className="w-full md:w-auto text-center bg-mk-green-500 hover:bg-mk-green-400 text-black font-extrabold text-xs tracking-wider uppercase py-3.5 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(57,255,20,0.15)] flex items-center justify-center gap-2 group"
+                      className="w-full md:w-auto text-center bg-mk-blue-500 hover:bg-mk-blue-400 text-black font-extrabold text-xs tracking-wider uppercase py-3.5 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(14,165,233,0.15)] flex items-center justify-center gap-2 group"
                     >
                       <span>Ver Detalhes do App</span>
                       <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -277,9 +277,9 @@ export function Home() {
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 w-full">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl md:text-2xl font-display font-extrabold text-white tracking-tight flex items-center gap-2.5">
-                  <span className="w-2.5 h-6 bg-mk-green-400 rounded-lg shadow-[0_0_10px_rgba(57,255,20,0.4)]"></span>
+                  <span className="w-2.5 h-6 bg-mk-blue-400 rounded-lg shadow-[0_0_10px_rgba(14,165,233,0.4)]"></span>
                   <span>Novidades Recentes da Comunidade</span>
-                  <span className="text-[10px] bg-mk-green-950/40 text-mk-green-400 font-mono py-1 px-3.5 rounded-full border border-mk-green-500/25 uppercase font-bold animate-pulse">
+                  <span className="text-[10px] bg-mk-blue-950/40 text-mk-blue-400 font-mono py-1 px-3.5 rounded-full border border-mk-blue-500/25 uppercase font-bold animate-pulse">
                     Hot Releases
                   </span>
                 </h2>
@@ -290,7 +290,7 @@ export function Home() {
                   <motion.div
                     key={`community-${app.id}`}
                     whileHover={{ y: -6, scale: 1.01 }}
-                    className="relative bg-gradient-to-b from-zinc-900/40 to-zinc-950/80 border border-zinc-850/80 hover:border-mk-green-500/40 rounded-2xl p-5 group shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all text-left"
+                    className="relative bg-gradient-to-b from-zinc-900/40 to-zinc-950/80 border border-zinc-850/80 hover:border-mk-blue-500/40 rounded-2xl p-5 group shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all text-left"
                   >
                     <div className="flex items-start gap-3.5 mb-4">
                       <img 
@@ -299,10 +299,10 @@ export function Home() {
                         className="w-14 h-14 rounded-xl object-cover bg-black border border-zinc-900 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-mk-green-400 bg-mk-green-950/40 border border-mk-green-500/20 px-2 py-0.5 rounded">
+                        <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-mk-blue-400 bg-mk-blue-950/40 border border-mk-blue-500/20 px-2 py-0.5 rounded">
                           🆕 NOVO JOGO / APP
                         </span>
-                        <h3 className="text-white text-sm font-bold truncate tracking-tight group-hover:text-mk-green-400 transition-colors mt-1">
+                        <h3 className="text-white text-sm font-bold truncate tracking-tight group-hover:text-mk-blue-400 transition-colors mt-1">
                           {app.name}
                         </h3>
                         <p className="text-zinc-500 text-[11px] truncate">
@@ -323,7 +323,7 @@ export function Home() {
                       </div>
                       <Link 
                         to={`/app/${app.id}`}
-                        className="text-[10px] font-mono tracking-wider font-extrabold text-black bg-mk-green-400 hover:bg-mk-green-300 py-1.5 px-4 rounded-lg transition-colors flex items-center gap-1 uppercase"
+                        className="text-[10px] font-mono tracking-wider font-extrabold text-black bg-mk-blue-400 hover:bg-mk-blue-300 py-1.5 px-4 rounded-lg transition-colors flex items-center gap-1 uppercase"
                       >
                         <span>Instalar</span>
                       </Link>
@@ -336,7 +336,7 @@ export function Home() {
 
           {/* Main Grid & Filters */}
           <div className="flex-1 max-w-7xl mx-auto px-4 md:px-8 py-12 w-full relative">
-            <div className="absolute top-[150px] right-1/4 w-[350px] h-[350px] bg-mk-green-500/5 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute top-[150px] right-1/4 w-[350px] h-[350px] bg-mk-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
             
             {/* Navigation Filters Bar */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-zinc-900 mb-10">
@@ -354,7 +354,7 @@ export function Home() {
                       onClick={() => setSelectedCategory(category)}
                       className={`px-4 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
                         selectedCategory === category
-                          ? 'bg-zinc-800 text-mk-green-400 shadow-md border border-zinc-700/80'
+                          ? 'bg-zinc-800 text-mk-blue-400 shadow-md border border-zinc-700/80'
                           : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
                       }`}
                     >
@@ -417,7 +417,7 @@ export function Home() {
               >
                 <div className="text-xs text-zinc-400">
                   <span>Encontramos <strong className="text-white font-bold">{processedApps.length}</strong> resultados para a busca por: </span>
-                  <span className="text-mk-green-400 font-bold bg-mk-green-950/20 px-2 py-1 rounded border border-mk-green-500/10 inline-block font-mono mt-1 sm:mt-0 ml-1">
+                  <span className="text-mk-blue-400 font-bold bg-mk-blue-950/20 px-2 py-1 rounded border border-mk-blue-500/10 inline-block font-mono mt-1 sm:mt-0 ml-1">
                     "{searchQuery}"
                   </span>
                 </div>
@@ -449,12 +449,12 @@ export function Home() {
                   exit={{ opacity: 0 }}
                   className="text-center py-24 border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/30 relative overflow-hidden group"
                 >
-                  <div className="absolute inset-0 bg-mk-green-500/5 translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                  <div className="absolute inset-0 bg-mk-blue-500/5 translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
                   <p className="text-zinc-500 font-medium relative z-10 text-sm">Nenhum aplicativo corresponde aos filtros ou busca selecionada.</p>
                   {searchQuery && (
                     <button 
                       onClick={() => setSearchQuery('')}
-                      className="mt-4 text-xs font-bold text-mk-green-400 hover:text-mk-green-300 relative z-10 underline focus:outline-none"
+                      className="mt-4 text-xs font-bold text-mk-blue-400 hover:text-mk-blue-300 relative z-10 underline focus:outline-none"
                     >
                       Gostaria de redefinir sua busca?
                     </button>
@@ -493,14 +493,14 @@ export function Home() {
             </div>
 
             {/* Immersive backdrop graphics */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-mk-green-950/20 via-zinc-950 to-black z-0 pointer-events-none" />
-            <div className="absolute top-1/4 right-[5%] w-[350px] h-[350px] bg-mk-green-500/5 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-mk-blue-950/20 via-zinc-950 to-black z-0 pointer-events-none" />
+            <div className="absolute top-1/4 right-[5%] w-[350px] h-[350px] bg-mk-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
 
             {/* Dynamic Clock and Date Widget row */}
             <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-900 pb-8 mb-8 gap-4">
               <div>
                 <span className="text-[11px] font-extrabold text-zinc-500 font-mono flex items-center gap-1.5 uppercase tracking-wider mb-1.5">
-                  <Calendar size={14} className="text-mk-green-400" /> {currentDate}
+                  <Calendar size={14} className="text-mk-blue-400" /> {currentDate}
                 </span>
                 <h2 className="text-5xl md:text-6xl font-extrabold font-sans text-white tracking-tighter leading-none font-display">
                   {currentTime || '12:00'}
@@ -511,7 +511,7 @@ export function Home() {
                 <div className="flex-1">
                   <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest mb-1 font-bold">Status do Sistema Host</p>
                   <div className="text-xs text-zinc-300 leading-relaxed font-sans">
-                    Banco Supabase: <strong className="text-mk-green-400 font-bold">CONECTADO</strong> • Carregados: <span className="text-white font-bold">{installedApps.length}</span>
+                    Banco Supabase: <strong className="text-mk-blue-400 font-bold">CONECTADO</strong> • Carregados: <span className="text-white font-bold">{installedApps.length}</span>
                   </div>
                 </div>
               </div>
@@ -520,7 +520,7 @@ export function Home() {
             {/* Section: PINNED APPS APPS SHORTCUTS */}
             <div className="relative z-10 mb-12">
               <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2 mb-6">
-                <Pin size={16} className="text-mk-green-400 fill-mk-green-400" />
+                <Pin size={16} className="text-mk-blue-400 fill-mk-blue-400" />
                 <span>Aplicativos Fixados na Tela Inicial</span>
                 <span className="text-[10px] bg-zinc-900/80 text-zinc-400 font-mono px-2 py-0.5 rounded border border-zinc-800">
                   {pinnedApps.length} fixados
@@ -546,17 +546,17 @@ export function Home() {
                       className="flex flex-col items-center group cursor-pointer"
                       onClick={() => setSandboxApp(app)}
                     >
-                      <div className="relative w-20 h-20 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-lg flex items-center justify-center overflow-hidden mb-3 group-hover:border-mk-green-500/40 transition-all">
+                      <div className="relative w-20 h-20 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-lg flex items-center justify-center overflow-hidden mb-3 group-hover:border-mk-blue-500/40 transition-all">
                         <img src={app.iconDataUrl} alt={app.name} className="w-full h-full object-cover" />
                         
                         {/* Play Hover Overlay */}
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <div className="w-10 h-10 rounded-full bg-mk-green-400 text-black flex items-center justify-center shadow-lg">
+                          <div className="w-10 h-10 rounded-full bg-mk-blue-400 text-black flex items-center justify-center shadow-lg">
                             <Play size={18} fill="black" className="ml-0.5" />
                           </div>
                         </div>
                       </div>
-                      <span className="text-zinc-200 text-xs font-bold truncate max-w-full text-center group-hover:text-mk-green-400 transition-colors">
+                      <span className="text-zinc-200 text-xs font-bold truncate max-w-full text-center group-hover:text-mk-blue-400 transition-colors">
                         {app.name}
                       </span>
                       <span className="text-[10px] text-zinc-500 font-mono mt-0.5">
@@ -597,7 +597,7 @@ export function Home() {
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => setSandboxApp(app)}
-                            className="bg-mk-green-500 hover:bg-mk-green-400 text-black text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+                            className="bg-mk-blue-500 hover:bg-mk-blue-400 text-black text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5"
                           >
                             <Play size={12} fill="black" />
                             <span>Lançar</span>
@@ -605,7 +605,7 @@ export function Home() {
                           
                           <button 
                             onClick={() => isPinned ? unpinApp(app.id) : pinApp(app.id)}
-                            className={`p-2 rounded-lg border text-xs transition-colors ${isPinned ? 'bg-mk-green-950/40 border-mk-green-500/20 text-mk-green-400' : 'bg-transparent border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800'}`}
+                            className={`p-2 rounded-lg border text-xs transition-colors ${isPinned ? 'bg-mk-blue-950/40 border-mk-blue-500/20 text-mk-blue-400' : 'bg-transparent border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800'}`}
                           >
                             <span className="font-mono text-[10px] font-bold uppercase tracking-wider">{isPinned ? '📌 Fixado' : 'Fixar'}</span>
                           </button>
@@ -643,8 +643,8 @@ export function Home() {
       {/* Footer */}
       <footer className="border-t border-zinc-900 bg-zinc-950 py-16 text-center mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center">
-          <div className="w-12 h-12 bg-black border border-mk-green-500/30 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(57,255,20,0.1)]">
-            <span className="text-mk-green-400 font-bold text-xl">MK</span>
+          <div className="w-12 h-12 bg-black border border-mk-blue-500/30 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(14,165,233,0.1)]">
+            <span className="text-mk-blue-400 font-bold text-xl">MK</span>
           </div>
           <p className="text-zinc-500 text-xs font-semibold uppercase tracking-widest font-mono mb-2">MK Design Studio Hub</p>
           <p className="text-zinc-600 text-xs font-light">© 2026 MK Design Studio. Conectando ideias e criatividade globalmente.</p>

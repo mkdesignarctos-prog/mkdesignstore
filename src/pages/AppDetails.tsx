@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Navbar } from '../components/Navbar';
-import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X, User, Pin, Play, Trash2 } from 'lucide-react';
+import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X, User, Pin, Play, Trash2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { InstallModal } from '../components/InstallModal';
 import { AppSandbox } from '../components/AppSandbox';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { AppItem } from '../types';
 
 export function AppDetails() {
   const { id } = useParams<{ id: string }>();
@@ -23,9 +25,8 @@ export function AppDetails() {
   } = useStore();
   const navigate = useNavigate();
   
-  const app = id ? getAppById(id) : undefined;
-  const reviews = id ? getReviewsForApp(id) : [];
-  
+  const [app, setApp] = useState<AppItem | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [guestName, setGuestName] = useState('');
@@ -36,11 +37,74 @@ export function AppDetails() {
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  if (!app) {
+  useEffect(() => {
+    if (!id) return;
+
+    const findApp = async () => {
+      setLoading(true);
+      const localApp = getAppById(id);
+      
+      if (localApp) {
+        setApp(localApp);
+        setLoading(false);
+      } else if (isSupabaseConfigured) {
+        try {
+          const { data, error } = await supabase
+            .from('apps')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+          if (!error && data) {
+            setApp({
+              id: data.id,
+              name: data.name,
+              developerId: data.developer_id || data.developerId,
+              developerName: data.developer_name || data.developerName,
+              description: data.description,
+              category: data.category,
+              iconDataUrl: data.icon_data_url || data.iconDataUrl,
+              fileObjectUrl: data.file_object_url || data.fileObjectUrl,
+              fileName: data.file_name || data.fileName,
+              rating: Number(data.rating) || 0,
+              reviews: [],
+              downloads: Number(data.downloads) || 0,
+              size: data.size || '34 MB',
+              version: data.version || '1.0.0',
+              createdAt: data.created_at || data.createdAt || Date.now()
+            });
+          }
+        } catch (e) {
+          console.warn('Erro ao buscar app diretamente no Supabase:', e);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    findApp();
+  }, [id, getAppById]);
+
+  const reviews = id ? getReviewsForApp(id) : [];
+
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-white bg-transparent">
-        <h1 className="text-2xl font-bold mb-4 font-display">Aplicativo não encontrado</h1>
-        <button onClick={() => navigate('/')} className="text-mk-green-400 hover:underline">Voltar para a loja</button>
+        <Loader2 className="w-10 h-10 text-mk-blue-400 animate-spin mb-4" />
+        <p className="text-zinc-500 font-mono text-sm tracking-widest uppercase">Sincronizando Banco de Dados...</p>
+      </div>
+    );
+  }
+
+  if (!app) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-white bg-transparent p-6 text-center">
+        <AlertCircle size={48} className="text-red-500 mb-4 opacity-50" />
+        <h1 className="text-2xl font-bold mb-2 font-display">Aplicativo não encontrado</h1>
+        <p className="text-zinc-500 mb-6 max-w-xs">O link pode estar expirado ou o aplicativo foi removido dos servidores.</p>
+        <button onClick={() => navigate('/')} className="text-mk-blue-400 hover:underline font-bold">Voltar para a loja</button>
       </div>
     );
   }
@@ -126,13 +190,13 @@ export function AppDetails() {
           <img 
             src={app.iconDataUrl} 
             alt={app.name} 
-            className="w-32 h-32 md:w-48 md:h-48 rounded-3xl object-cover bg-zinc-900 border border-zinc-800 shadow-[0_0_30px_rgba(57,255,20,0.1)]"
+            className="w-32 h-32 md:w-48 md:h-48 rounded-3xl object-cover bg-zinc-900 border border-zinc-800 shadow-[0_0_30px_rgba(0,210,255,0.1)]"
           />
           <div className="flex-1">
             <h1 className="text-4xl md:text-5xl font-bold font-display text-white tracking-tight mb-2">{app.name}</h1>
             <button 
               onClick={() => navigate(`/developer/${app.developerId}`)}
-              className="text-mk-green-400 hover:text-mk-green-300 transition-colors font-medium mb-6 font-mono text-sm tracking-widest uppercase focus:outline-none"
+              className="text-mk-blue-400 hover:text-mk-blue-300 transition-colors font-medium mb-6 font-mono text-sm tracking-widest uppercase focus:outline-none"
             >
               {app.developerName}
             </button>
@@ -140,7 +204,7 @@ export function AppDetails() {
             <div className="flex flex-wrap items-center gap-6 mb-8 text-sm">
               <div className="flex flex-col items-center">
                 <span className="text-white font-bold text-lg flex items-center gap-1 font-mono">
-                  {app.rating > 0 ? app.rating.toFixed(1) : 'Novo'} <Star size={16} className="fill-mk-green-400 text-mk-green-400" />
+                  {app.rating > 0 ? app.rating.toFixed(1) : 'Novo'} <Star size={16} className="fill-mk-blue-400 text-mk-blue-400" />
                 </span>
                 <span className="text-zinc-500">{reviews.length} avaliações</span>
               </div>
@@ -167,7 +231,7 @@ export function AppDetails() {
                       <button 
                         onClick={handleDownload}
                         disabled={isDownloading}
-                        className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-mk-green-500 hover:bg-mk-green-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)] disabled:opacity-70 disabled:cursor-wait uppercase text-xs tracking-wider"
+                        className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-mk-blue-500 hover:bg-mk-blue-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(0,210,255,0.2)] disabled:opacity-70 disabled:cursor-wait uppercase text-xs tracking-wider"
                       >
                         {isDownloading ? (
                           <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
@@ -183,7 +247,7 @@ export function AppDetails() {
                         {/* Run/Launch Button */}
                         <button 
                           onClick={() => setIsSandboxOpen(true)}
-                          className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-mk-green-500 to-emerald-500 hover:from-mk-green-400 hover:to-emerald-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(57,255,20,0.25)] text-xs uppercase tracking-wider animate-in fade-in duration-200"
+                          className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-mk-blue-500 to-cyan-500 hover:from-mk-blue-400 hover:to-cyan-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(0,210,255,0.25)] text-xs uppercase tracking-wider animate-in fade-in duration-200"
                         >
                           <Play size={16} fill="black" />
                           <span>Lançar Aplicativo</span>
@@ -192,10 +256,10 @@ export function AppDetails() {
                         {/* PINS BUTTON (option to pin to Home Screen) */}
                         <button 
                           onClick={() => isPinned ? unpinApp(app.id) : pinApp(app.id)}
-                          className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-all ${isPinned ? 'bg-mk-green-400/10 border-mk-green-500/30 text-mk-green-400 shadow-[0_0_15px_rgba(57,255,20,0.15)]' : 'bg-zinc-900 border-zinc-800 hover:bg-zinc-800 text-zinc-300 hover:text-white'}`}
+                          className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-all ${isPinned ? 'bg-mk-blue-400/10 border-mk-blue-500/30 text-mk-blue-400 shadow-[0_0_15px_rgba(0,210,255,0.15)]' : 'bg-zinc-900 border-zinc-800 hover:bg-zinc-800 text-zinc-300 hover:text-white'}`}
                           title={isPinned ? 'Desfixar da Tela Inicial' : 'Fixar na Tela Inicial'}
                         >
-                          <Pin size={18} className={isPinned ? 'fill-mk-green-400 text-mk-green-400' : ''} />
+                          <Pin size={18} className={isPinned ? 'fill-mk-blue-400 text-mk-blue-400' : ''} />
                         </button>
  
                         {/* UNINSTALL BUTTON */}
@@ -226,11 +290,11 @@ export function AppDetails() {
                   {isInstalled && (
                     <div className="flex flex-col gap-1.5 p-3.5 bg-zinc-900/30 border border-zinc-850 rounded-2xl max-w-sm">
                       <p className="text-[11px] text-zinc-400 flex items-center gap-1.5 font-sans leading-tight">
-                        <Check size={14} className="text-mk-green-400 shrink-0" />
+                        <Check size={14} className="text-mk-blue-400 shrink-0" />
                         <span>Este aplicativo está instalado no host sandbox virtual.</span>
                       </p>
                       {isPinned ? (
-                        <p className="text-[10px] text-mk-green-400 font-mono flex items-center gap-1">
+                        <p className="text-[10px] text-mk-blue-400 font-mono flex items-center gap-1">
                           📌 Fixado na sua Tela Inicial como atalho principal.
                         </p>
                       ) : (
@@ -247,7 +311,7 @@ export function AppDetails() {
               );
             })()}
             
-            <div className="mt-4 flex items-center gap-2 text-xs text-mk-green-500 font-medium bg-mk-green-500/10 w-fit px-3 py-1.5 rounded-full border border-mk-green-500/20">
+            <div className="mt-4 flex items-center gap-2 text-xs text-mk-blue-500 font-medium bg-mk-blue-500/10 w-fit px-3 py-1.5 rounded-full border border-mk-blue-500/20">
               <ShieldCheck size={14} />
               <span>Verificado por MK Security</span>
             </div>
@@ -283,7 +347,7 @@ export function AppDetails() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-950 pb-3">
               <h3 className="text-white font-bold text-sm tracking-tight">Deixe sua opinião</h3>
               {!currentUser && (
-                <div className="px-3 py-1 bg-mk-green-950/20 text-mk-green-400 border border-mk-green-500/20 text-[10px] font-mono font-bold uppercase rounded-lg">
+                <div className="px-3 py-1 bg-mk-blue-950/20 text-mk-blue-400 border border-mk-blue-500/20 text-[10px] font-mono font-bold uppercase rounded-lg">
                   ⚡ Visitante Anônimo (Sem Necessidade de Login)
                 </div>
               )}
@@ -292,7 +356,7 @@ export function AppDetails() {
             <div className="flex gap-2.5 my-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button type="button" key={star} onClick={() => setRating(star)} className="focus:outline-none transition-transform hover:scale-115">
-                  <Star size={24} className={star <= rating ? 'fill-mk-green-400 text-mk-green-400' : 'text-zinc-700'} />
+                  <Star size={24} className={star <= rating ? 'fill-mk-blue-400 text-mk-blue-400' : 'text-zinc-700'} />
                 </button>
               ))}
             </div>
@@ -306,7 +370,7 @@ export function AppDetails() {
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
                     placeholder="Ex: Player_Master_2026 (Deixe em branco para apelido randômico)"
-                    className="w-full bg-zinc-950 border border-zinc-850 focus:border-mk-green-500/50 rounded-xl px-4 py-2.5 text-xs text-white placeholder-zinc-600 outline-none transition-colors font-mono"
+                    className="w-full bg-zinc-950 border border-zinc-850 focus:border-mk-blue-500/50 rounded-xl px-4 py-2.5 text-xs text-white placeholder-zinc-600 outline-none transition-colors font-mono"
                   />
                 </div>
               )}
@@ -319,12 +383,12 @@ export function AppDetails() {
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
                     placeholder="Conte para os outros o que você achou deste aplicativo..."
-                    className="flex-1 bg-zinc-950 border border-zinc-850 focus:border-mk-green-500/50 rounded-xl px-4 py-3 text-xs text-white placeholder-zinc-600 outline-none transition-colors"
+                    className="flex-1 bg-zinc-950 border border-zinc-850 focus:border-mk-blue-500/50 rounded-xl px-4 py-3 text-xs text-white placeholder-zinc-600 outline-none transition-colors"
                   />
                   <button 
                     type="submit"
                     disabled={!reviewText.trim() || isSubmitting}
-                    className="bg-mk-green-500 hover:bg-mk-green-400 text-black px-6 py-3 rounded-xl font-extrabold text-xs tracking-wider uppercase transition-colors disabled:opacity-40 flex items-center justify-center gap-2 sm:w-auto w-full shrink-0"
+                    className="bg-mk-blue-500 hover:bg-mk-blue-400 text-black px-6 py-3 rounded-xl font-extrabold text-xs tracking-wider uppercase transition-colors disabled:opacity-40 flex items-center justify-center gap-2 sm:w-auto w-full shrink-0"
                   >
                     <Send size={14} />
                     {isSubmitting ? 'Enviando...' : 'Avaliar'}
@@ -344,7 +408,7 @@ export function AppDetails() {
                 <div key={review.id} className="bg-zinc-900/30 border border-zinc-800/50 rounded-3xl p-6 transition-colors hover:bg-zinc-900/50">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-mk-green-500/10 border border-mk-green-500/20 flex items-center justify-center text-mk-green-400 font-bold font-display">
+                      <div className="w-10 h-10 rounded-full bg-mk-blue-500/10 border border-mk-blue-500/20 flex items-center justify-center text-mk-blue-400 font-bold font-display">
                         {review.userName[0].toUpperCase()}
                       </div>
                       <div>
@@ -354,7 +418,7 @@ export function AppDetails() {
                     </div>
                     <div className="flex gap-0.5">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} className={i < review.rating ? 'fill-mk-green-400 text-mk-green-400' : 'text-zinc-700'} />
+                        <Star key={i} size={14} className={i < review.rating ? 'fill-mk-blue-400 text-mk-blue-400' : 'text-zinc-700'} />
                       ))}
                     </div>
                   </div>
@@ -396,13 +460,13 @@ export function AppDetails() {
                   <img src={app.iconDataUrl} alt={app.name} className="w-14 h-14 rounded-xl object-cover" />
                   <div>
                     <p className="text-white font-bold">{app.name}</p>
-                    <p className="text-mk-green-400 text-xs font-mono">{app.developerName}</p>
+                    <p className="text-mk-blue-400 text-xs font-mono">{app.developerName}</p>
                   </div>
                 </div>
                 
                 <p className="text-zinc-400 text-sm mb-3">Qualquer pessoa com este link pode acessar a página do aplicativo.</p>
 
-                <div className="flex bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden focus-within:border-mk-green-500 transition-colors">
+                <div className="flex bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden focus-within:border-mk-blue-500 transition-colors">
                   <input 
                     type="text" 
                     readOnly 
@@ -411,7 +475,7 @@ export function AppDetails() {
                   />
                   <button 
                     onClick={copyToClipboard} 
-                    className="bg-mk-green-500 hover:bg-mk-green-400 text-black px-4 sm:px-6 font-bold transition-colors flex items-center justify-center gap-2"
+                    className="bg-mk-blue-500 hover:bg-mk-blue-400 text-black px-4 sm:px-6 font-bold transition-colors flex items-center justify-center gap-2"
                   >
                     {copied ? <Check size={18} /> : <Copy size={18} />}
                     <span className="hidden sm:inline">{copied ? 'Copiado' : 'Copiar'}</span>

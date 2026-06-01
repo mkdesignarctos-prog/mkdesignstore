@@ -185,7 +185,7 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className="relative bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-5xl h-[88vh] flex flex-col md:flex-row overflow-hidden shadow-[0_0_50px_rgba(57,255,20,0.15)] z-10"
+          className="relative bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-5xl h-[88vh] flex flex-col md:flex-row overflow-hidden shadow-[0_0_50px_rgba(14,165,233,0.15)] z-10"
         >
           {/* Main sandbox playground */}
           <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-zinc-900 bg-zinc-950">
@@ -200,10 +200,10 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
               </div>
               <div className="flex items-center gap-2">
                 <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mk-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-mk-green-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mk-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-mk-blue-500"></span>
                 </span>
-                <span className="text-[9px] uppercase font-mono text-mk-green-400 font-extrabold tracking-wider bg-mk-green-950/40 border border-mk-green-500/20 px-2 py-0.5 rounded">
+                <span className="text-[9px] uppercase font-mono text-mk-blue-400 font-extrabold tracking-wider bg-mk-blue-950/40 border border-mk-blue-500/20 px-2 py-0.5 rounded">
                   SANDBOX ATIVA
                 </span>
               </div>
@@ -215,16 +215,16 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
               {/* Category: JOGO */}
               {app.category === 'Jogos' && (
                 <div className="w-full max-w-sm bg-zinc-900 rounded-2xl border border-zinc-800 p-5 flex flex-col items-center shadow-lg relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-red-500 via-mk-green-400 to-blue-500"></div>
+                  <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-red-500 via-mk-blue-400 to-blue-500"></div>
                   
                   <div className="flex justify-between w-full mb-4 text-xs font-mono text-zinc-400">
                     <div>PONTOS: <span className="text-white font-bold">{score}</span></div>
-                    <div>RECORD: <span className="text-mk-green-400 font-bold">{highScore}</span></div>
+                    <div>RECORD: <span className="text-mk-blue-400 font-bold">{highScore}</span></div>
                   </div>
 
                   {gameState === 'idle' && (
                     <div className="text-center py-12 flex flex-col items-center">
-                      <div className="w-16 h-16 bg-mk-green-500/10 border border-mk-green-500/30 text-mk-green-400 rounded-full flex items-center justify-center mb-4">
+                      <div className="w-16 h-16 bg-mk-blue-500/10 border border-mk-blue-500/30 text-mk-blue-400 rounded-full flex items-center justify-center mb-4">
                         <Play size={28} className="ml-1 animate-pulse" />
                       </div>
                       <h4 className="text-white font-extrabold text-lg tracking-tight mb-2">MK Space Dodge</h4>
@@ -233,7 +233,7 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
                       </p>
                       <button 
                         onClick={startGame}
-                        className="bg-mk-green-500 hover:bg-mk-green-400 text-black text-xs font-bold font-mono tracking-wider uppercase py-2.5 px-6 rounded-xl transition-all shadow-[0_0_15px_rgba(57,255,20,0.2)]"
+                        className="bg-mk-blue-500 hover:bg-mk-blue-400 text-black text-xs font-bold font-mono tracking-wider uppercase py-2.5 px-6 rounded-xl transition-all shadow-[0_0_15px_rgba(14,165,233,0.2)]"
                       >
                         Iniciar Simulação
                       </button>
@@ -247,7 +247,7 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
                         
                         {/* Player ship */}
                         <div 
-                          className="absolute bottom-2 w-6 h-6 bg-mk-green-500 rounded-lg flex items-center justify-center transition-all duration-75"
+                          className="absolute bottom-2 w-6 h-6 bg-mk-blue-500 rounded-lg flex items-center justify-center transition-all duration-75"
                           style={{ left: `calc(${playerX}% - 12px)` }}
                         >
                           <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -313,7 +313,7 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
                 <div className="w-full max-w-md bg-zinc-900 border border-zinc-850 rounded-2xl p-5 shadow-xl relative text-left">
                   <div className="flex items-center gap-2 pb-3.5 border-b border-zinc-800 mb-4 justify-between">
                     <div className="flex items-center gap-2">
-                      <FileText size={16} className="text-mk-green-400" />
+                      <FileText size={16} className="text-mk-blue-400" />
                       <span className="text-white text-xs font-bold uppercase tracking-wider font-mono">Gerenciador de Atividades Local</span>
                     </div>
                     <span className="text-[10px] font-mono text-zinc-500">{notes.length} tarefas</span>
@@ -326,11 +326,11 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
                       value={newNote}
                       onChange={(e) => setNewNote(e.target.value)}
                       placeholder="Registrar nova entrada..."
-                      className="flex-1 bg-zinc-950 border border-zinc-800 focus:border-mk-green-500 rounded-xl px-3 py-2 text-xs text-white outline-none font-sans"
+                      className="flex-1 bg-zinc-950 border border-zinc-800 focus:border-mk-blue-500 rounded-xl px-3 py-2 text-xs text-white outline-none font-sans"
                     />
                     <button 
                       onClick={handleAddNote}
-                      className="bg-mk-green-400 hover:bg-mk-green-300 text-black px-3.5 py-2 rounded-xl transition-all"
+                      className="bg-mk-blue-400 hover:bg-mk-blue-300 text-black px-3.5 py-2 rounded-xl transition-all"
                     >
                       <Plus size={16} />
                     </button>
@@ -363,7 +363,7 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
                     <div className="bg-zinc-950/80 rounded-xl p-3 h-24 overflow-y-auto space-y-2 border border-zinc-850">
                       {chatMessages.map((msg, i) => (
                         <div key={i} className="text-[10px] leading-tight">
-                          <span className="font-bold text-mk-green-400">{msg.sender}:</span>{' '}
+                          <span className="font-bold text-mk-blue-400">{msg.sender}:</span>{' '}
                           <span className="text-zinc-300">{msg.text}</span>
                           <span className="text-zinc-600 font-mono text-[8px] ml-1">({msg.time})</span>
                         </div>
@@ -375,7 +375,7 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
                         value={chatText}
                         onChange={(e) => setChatText(e.target.value)}
                         placeholder="Enviar mensagem para o lobby..."
-                        className="flex-1 bg-zinc-950/50 border border-zinc-850 focus:border-mk-green-500 rounded-lg px-2 py-1 text-[10px] text-white outline-none"
+                        className="flex-1 bg-zinc-950/50 border border-zinc-850 focus:border-mk-blue-500 rounded-lg px-2 py-1 text-[10px] text-white outline-none"
                       />
                       <button 
                         onClick={handleSendChatMessage}
@@ -412,7 +412,7 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
                     <span className="text-white font-bold">{cpuUsage}%</span>
                   </div>
                   <div className="w-full bg-zinc-950 h-1 rounded-full overflow-hidden">
-                    <div className="bg-mk-green-400 h-full transition-all duration-300" style={{ width: `${cpuUsage}%` }}></div>
+                    <div className="bg-mk-blue-400 h-full transition-all duration-300" style={{ width: `${cpuUsage}%` }}></div>
                   </div>
                 </div>
 
@@ -422,7 +422,7 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
                     <span className="text-white font-bold">{ramUsage} MB</span>
                   </div>
                   <div className="w-full bg-zinc-950 h-1 rounded-full overflow-hidden">
-                    <div className="bg-mk-green-400 h-full transition-all duration-300" style={{ width: `${(ramUsage/512)*100}%` }}></div>
+                    <div className="bg-mk-blue-400 h-full transition-all duration-300" style={{ width: `${(ramUsage/512)*100}%` }}></div>
                   </div>
                 </div>
               </div>
@@ -431,14 +431,14 @@ export function AppSandbox({ isOpen, onClose, app }: AppSandboxProps) {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono font-bold flex items-center gap-1.5">
-                    <Terminal size={12} className="text-mk-green-400" />
+                    <Terminal size={12} className="text-mk-blue-400" />
                     Telemetria de Sistema
                   </span>
                   <span className="text-[9px] text-zinc-600 font-mono px-1.5 py-0.5 bg-zinc-900 rounded">60fps</span>
                 </div>
                 <div className="w-full h-48 bg-black rounded-xl p-3 font-mono text-[9px] text-zinc-400 overflow-y-auto space-y-1.5 border border-zinc-950 shadow-inner flex flex-col-reverse text-left">
                   {logs.map((log, index) => (
-                    <div key={index} className={`leading-tight break-all ${log.includes('[Erro Fatal]') ? 'text-red-500 font-bold' : log.includes('OK') ? 'text-mk-green-400' : 'text-zinc-400'}`}>
+                    <div key={index} className={`leading-tight break-all ${log.includes('[Erro Fatal]') ? 'text-red-500 font-bold' : log.includes('OK') ? 'text-mk-blue-400' : 'text-zinc-400'}`}>
                       {log}
                     </div>
                   ))}

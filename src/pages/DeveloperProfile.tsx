@@ -28,16 +28,16 @@ export function DeveloperProfile() {
 
         {/* Developer Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-16 bg-zinc-900/30 border border-zinc-800/50 p-8 rounded-3xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-mk-green-500/5 blur-[80px] rounded-full pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-mk-blue-500/5 blur-[80px] rounded-full pointer-events-none" />
           
-          <div className="w-32 h-32 rounded-3xl bg-zinc-950 border border-mk-green-500/20 flex flex-col items-center justify-center text-mk-green-400 shadow-[0_0_30px_rgba(57,255,20,0.1)] z-10 relative">
+          <div className="w-32 h-32 rounded-3xl bg-zinc-950 border border-mk-blue-500/20 flex flex-col items-center justify-center text-mk-blue-400 shadow-[0_0_30px_rgba(14,165,233,0.1)] z-10 relative">
             <UserIcon size={48} className="mb-2" />
           </div>
           
           <div className="flex-1 text-center md:text-left z-10">
             <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
               <h1 className="text-4xl font-bold font-display text-white tracking-tight">{developerName}</h1>
-              <Verified className="text-mk-green-500" size={24} />
+              <Verified className="text-mk-blue-500" size={24} />
             </div>
             <p className="text-zinc-400 mb-6 font-medium">Desenvolvedor Verificado MK Store</p>
             

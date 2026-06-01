@@ -34,7 +34,7 @@ export function Publish() {
       <div className="min-h-screen flex flex-col items-center justify-center text-white bg-transparent">
         <h1 className="text-2xl font-bold mb-4">Acesso Restrito</h1>
         <p className="text-zinc-400 mb-6">Você precisa ser um Desenvolvedor MK para acessar este painel.</p>
-        <button onClick={() => navigate('/')} className="px-6 py-2 bg-mk-green-500 text-black font-bold rounded-full">
+        <button onClick={() => navigate('/')} className="px-6 py-2 bg-mk-blue-500 text-black font-bold rounded-full">
           Voltar para Home
         </button>
       </div>
@@ -155,7 +155,7 @@ export function Publish() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Cyber Racing 2026"
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-green-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-blue-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
                 />
               </div>
 
@@ -167,7 +167,7 @@ export function Publish() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Conte para os usuários o que seu app faz, seus recursos..."
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-green-500 rounded-xl px-4 py-3 text-white outline-none transition-colors resize-y"
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-blue-500 rounded-xl px-4 py-3 text-white outline-none transition-colors resize-y"
                 />
               </div>
 
@@ -177,7 +177,7 @@ export function Publish() {
                   <select 
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-green-500 rounded-xl px-4 py-3 text-white outline-none transition-colors appearance-none"
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-blue-500 rounded-xl px-4 py-3 text-white outline-none transition-colors appearance-none"
                   >
                     <option>Jogos</option>
                     <option>Produtividade</option>
@@ -194,7 +194,7 @@ export function Publish() {
                     value={version}
                     onChange={(e) => setVersion(e.target.value)}
                     placeholder="1.0.0"
-                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-green-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-mk-blue-500 rounded-xl px-4 py-3 text-white outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -212,12 +212,12 @@ export function Publish() {
                 <label className="block text-sm font-medium text-zinc-400 mb-2">Ícone do App * (512x512px)</label>
                 <div 
                   onClick={() => iconInputRef.current?.click()}
-                  className="bg-zinc-950 border-2 border-dashed border-zinc-850 hover:border-mk-green-500/50 rounded-2xl w-full aspect-square flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden group"
+                  className="bg-zinc-950 border-2 border-dashed border-zinc-850 hover:border-mk-blue-500/50 rounded-2xl w-full aspect-square flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden group"
                 >
                   {iconPreview ? (
                     <img src={iconPreview} alt="Ícone" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
                   ) : (
-                    <div className="flex flex-col items-center text-zinc-650 group-hover:text-mk-green-500 transition-colors">
+                    <div className="flex flex-col items-center text-zinc-650 group-hover:text-mk-blue-500 transition-colors">
                       <ImageIcon size={48} className="mb-4" />
                       <span className="text-sm font-medium">Upload Imagem</span>
                     </div>
@@ -240,14 +240,14 @@ export function Publish() {
                     <button
                       type="button"
                       onClick={() => setDeliveryMode('upload')}
-                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${deliveryMode === 'upload' ? 'bg-zinc-800 text-mk-green-400 border border-zinc-700/50' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${deliveryMode === 'upload' ? 'bg-zinc-800 text-mk-blue-400 border border-zinc-700/50' : 'text-zinc-500 hover:text-zinc-300'}`}
                     >
                       Upload Direto de Arquivo
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeliveryMode('link')}
-                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${deliveryMode === 'link' ? 'bg-zinc-800 text-mk-green-400 border border-zinc-700/50' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${deliveryMode === 'link' ? 'bg-zinc-800 text-mk-blue-400 border border-zinc-700/50' : 'text-zinc-500 hover:text-zinc-300'}`}
                     >
                       Link CDN Externo
                     </button>
@@ -257,12 +257,12 @@ export function Publish() {
                 {deliveryMode === 'upload' ? (
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="bg-zinc-950 border-2 border-dashed border-zinc-850 hover:border-mk-green-500/50 rounded-2xl w-full flex-1 min-h-[180px] flex flex-col items-center justify-center cursor-pointer transition-colors p-4"
+                    className="bg-zinc-950 border-2 border-dashed border-zinc-850 hover:border-mk-blue-500/50 rounded-2xl w-full flex-1 min-h-[180px] flex flex-col items-center justify-center cursor-pointer transition-colors p-4"
                   >
-                    <div className={`flex flex-col items-center transition-colors text-center px-4 ${appFile ? 'text-mk-green-400' : 'text-zinc-600 hover:text-mk-green-500'}`}>
+                    <div className={`flex flex-col items-center transition-colors text-center px-4 ${appFile ? 'text-mk-blue-400' : 'text-zinc-600 hover:text-mk-blue-500'}`}>
                       {appFile ? (
                         <>
-                          <ShieldCheck size={44} className="mb-3 text-mk-green-500" />
+                          <ShieldCheck size={44} className="mb-3 text-mk-blue-500" />
                           <span className="font-bold text-white block mb-1 truncate max-w-[200px]">{appFile.name}</span>
                           <span className="text-xs text-zinc-400">{formatSize(appFile.size)} - Pronto para envio</span>
                         </>
@@ -285,7 +285,7 @@ export function Publish() {
                         value={externalUrl}
                         onChange={(e) => setExternalUrl(e.target.value)}
                         placeholder="https://meu-cdn.com/arquivo-jogo.zip"
-                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-mk-green-500 rounded-lg px-3 py-2 text-xs text-white outline-none transition-colors"
+                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-mk-blue-500 rounded-lg px-3 py-2 text-xs text-white outline-none transition-colors"
                       />
                     </div>
                     <div>
@@ -295,7 +295,7 @@ export function Publish() {
                         value={customSizeText}
                         onChange={(e) => setCustomSizeText(e.target.value)}
                         placeholder="Ex: 5.4 GB"
-                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-mk-green-500 rounded-lg px-3 py-2 text-xs text-white outline-none transition-colors font-mono"
+                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-mk-blue-500 rounded-lg px-3 py-2 text-xs text-white outline-none transition-colors font-mono"
                       />
                     </div>
                   </div>
@@ -309,7 +309,7 @@ export function Publish() {
             <button 
               type="submit"
               disabled={isPublishing}
-              className="bg-mk-green-500 hover:bg-mk-green-400 text-black px-10 py-4 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(57,255,20,0.15)] hover:shadow-[0_0_30px_rgba(57,255,20,0.3)] disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-2 min-w-[200px]"
+              className="bg-mk-blue-500 hover:bg-mk-blue-400 text-black px-10 py-4 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(14,165,233,0.15)] hover:shadow-[0_0_30px_rgba(14,165,233,0.3)] disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-2 min-w-[200px]"
             >
               {isPublishing ? (
                 <>

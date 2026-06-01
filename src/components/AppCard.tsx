@@ -18,10 +18,10 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
       <motion.div 
         whileHover={{ y: -6, scale: 1.015 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}
-        className="group bg-zinc-900/40 backdrop-blur-md border border-zinc-800/85 hover:border-mk-green-500/40 rounded-2xl p-5 transition-all flex flex-col h-full cursor-pointer relative overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_4px_30px_rgba(57,255,20,0.06)]"
+        className="group bg-zinc-900/40 backdrop-blur-md border border-zinc-800/85 hover:border-mk-blue-500/40 rounded-2xl p-5 transition-all flex flex-col h-full cursor-pointer relative overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_4px_30px_rgba(14,165,233,0.06)]"
       >
         {/* Futuristic top-corner visual accent */}
-        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-mk-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-tr-2xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-mk-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-tr-2xl pointer-events-none" />
         
         <div className="flex items-start gap-4 mb-4">
           <div className="relative">
@@ -33,8 +33,8 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
             {/* Ambient indicator badge if rating is high */}
             {app.rating >= 4.5 && (
               <span className="absolute -top-1.5 -left-1.5 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mk-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-mk-green-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mk-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-mk-blue-500"></span>
               </span>
             )}
           </div>
@@ -46,13 +46,13 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
               </span>
             </div>
             
-            <h3 className="text-white font-bold tracking-tight truncate pr-2 text-base group-hover:text-mk-green-400 transition-colors">
+            <h3 className="text-white font-bold tracking-tight truncate pr-2 text-base group-hover:text-mk-blue-400 transition-colors">
               {app.name}
             </h3>
             
             <button 
               onClick={handleDeveloperClick}
-              className="text-zinc-500 hover:text-mk-green-400 transition-colors text-xs truncate block font-medium mt-0.5 focus:outline-none"
+              className="text-zinc-500 hover:text-mk-blue-400 transition-colors text-xs truncate block font-medium mt-0.5 focus:outline-none"
             >
               by {app.developerName}
             </button>
@@ -71,7 +71,7 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
           <div className="flex items-center gap-3">
             {/* Rating display */}
             <div className="flex items-center gap-1">
-              <Star className={`w-3.5 h-3.5 ${app.rating > 0 ? 'text-mk-green-400 fill-mk-green-400' : 'text-zinc-600'}`} />
+              <Star className={`w-3.5 h-3.5 ${app.rating > 0 ? 'text-mk-blue-400 fill-mk-blue-400' : 'text-zinc-600'}`} />
               <span className="text-xs font-bold text-white font-mono">
                 {app.rating > 0 ? app.rating.toFixed(1) : '-.-'}
               </span>
@@ -83,7 +83,7 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
             </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-zinc-950 group-hover:bg-mk-green-500 text-zinc-400 group-hover:text-black py-1.5 px-3 rounded-xl transition-all duration-300 border border-zinc-900 group-hover:border-mk-green-500 pr-2">
+          <div className="flex items-center gap-1 bg-zinc-950 group-hover:bg-mk-blue-500 text-zinc-400 group-hover:text-black py-1.5 px-3 rounded-xl transition-all duration-300 border border-zinc-900 group-hover:border-mk-blue-500 pr-2">
             <span className="text-[10px] font-mono font-bold tracking-wider mr-1 group-hover:text-black">INSTALL</span>
             <Download size={12} className="animate-bounce" style={{ animationDuration: '2s' }} />
           </div>
