@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { AppCard } from '../components/AppCard';
-import { ShieldCheck, Zap, Sparkles, Flame, Star, Trophy, Clock, Filter, ArrowRight, LayoutGrid, Smartphone, Pin, Trash2, Play, AppWindow, Calendar, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Zap, Sparkles, Flame, Star, Trophy, Clock, Filter, ArrowRight, LayoutGrid, Smartphone, Pin, Trash2, Play, AppWindow, Calendar, ShieldAlert, Download } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
@@ -16,7 +16,9 @@ export function Home() {
     pinnedAppIds = [],
     pinApp,
     unpinApp,
-    uninstallApp
+    uninstallApp,
+    canInstallStore,
+    installStore
   } = useStore();
   
   const [selectedCategory, setSelectedCategory] = useState('Todos');
@@ -442,6 +444,34 @@ export function Home() {
             
             {/* Apps Render Grid */}
             <AnimatePresence mode="popLayout">
+              {canInstallStore && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-12 relative overflow-hidden bg-gradient-to-r from-mk-blue-600 via-mk-blue-500 to-mk-blue-600 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_20px_50px_rgba(14,165,233,0.2)]"
+                >
+                  <div className="absolute top-0 right-0 p-12 bg-white/10 blur-[60px] rounded-full pointer-events-none" />
+                  <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shrink-0 border border-white/30 shadow-xl">
+                      <Download size={32} className="text-white animate-bounce" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-extrabold text-white tracking-tight mb-2">Instalar MK Store no seu Celular</h3>
+                      <p className="text-white/80 text-sm max-w-lg font-medium leading-relaxed">
+                        Acesse todos os aplicativos publicados instantaneamente da sua tela inicial. Instale a loja para uma experiência completa sem anúncios e com atualizações em tempo real.
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={installStore}
+                    className="relative z-10 bg-white hover:bg-zinc-100 text-black font-extrabold px-8 py-4 rounded-2xl transition-all shadow-xl hover:scale-105 active:scale-95 text-xs uppercase tracking-widest flex items-center gap-2"
+                  >
+                    <Download size={18} />
+                    <span>Conceder Permissão</span>
+                  </button>
+                </motion.div>
+              )}
+
               {processedApps.length === 0 ? (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.98 }}

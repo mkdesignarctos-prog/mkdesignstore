@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useStore } from '../context/StoreContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MonitorDown, Code2, LogOut } from 'lucide-react';
+import { Search, MonitorDown, Code2, LogOut, Download } from 'lucide-react';
 import { AuthModal } from './AuthModal';
 
 export function Navbar() {
-  const { currentUser, logout, becomeDeveloper, searchQuery, setSearchQuery } = useStore();
+  const { currentUser, logout, becomeDeveloper, searchQuery, setSearchQuery, canInstallStore, installStore } = useStore();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -82,6 +82,16 @@ export function Navbar() {
                     </div>
                     
                     <div className="p-2 space-y-1">
+                      {canInstallStore && (
+                        <button 
+                          onClick={installStore}
+                          className="w-full flex items-center gap-3 px-3.5 py-3 text-xs font-bold text-white bg-mk-blue-500/10 border border-mk-blue-500/20 hover:bg-mk-blue-500/20 rounded-xl transition-all group"
+                        >
+                          <Download size={15} className="text-mk-blue-400 group-hover:scale-110 transition-transform" />
+                          Instalar Aplicativo da Loja
+                        </button>
+                      )}
+                      
                       {currentUser.isDeveloper ? (
                         <button 
                           onClick={() => { navigate('/publish'); setIsMenuOpen(false); }}

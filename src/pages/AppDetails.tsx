@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Navbar } from '../components/Navbar';
-import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X, User, Pin, Play, Trash2, Loader2 } from 'lucide-react';
+import { Star, Download, Share2, ShieldCheck, ChevronLeft, Send, AlertCircle, Check, Copy, X, User, Pin, Play, Trash2, Loader2, MessageCircle, Twitter, Facebook, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { motion, AnimatePresence } from 'motion/react';
 import { InstallModal } from '../components/InstallModal';
 import { AppSandbox } from '../components/AppSandbox';
@@ -113,7 +114,7 @@ export function AppDetails() {
     if (navigator.share) {
       navigator.share({
         title: `Baixe ${app.name} na MK Design Studio`,
-        text: app.description,
+        text: `Dê uma olhada neste aplicativo incrível que encontrei na MK Store: ${app.name}`,
         url: window.location.href,
       }).catch(() => {
         setIsShareModalOpen(true);
@@ -121,6 +122,16 @@ export function AppDetails() {
     } else {
       setIsShareModalOpen(true);
     }
+  };
+
+  const shareToWhatsApp = () => {
+    const text = encodeURIComponent(`Dê uma olhada neste aplicativo incrível que encontrei na MK Store: ${app.name}\n\nConfira aqui: ${window.location.href}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
+  const shareToTwitter = () => {
+    const text = encodeURIComponent(`Acabei de encontrar o app ${app.name} na MK Design Studio! Confira:`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(window.location.href)}`, '_blank');
   };
 
   const copyToClipboard = () => {
@@ -454,17 +465,52 @@ export function AppDetails() {
                   <X size={20} />
                 </button>
                 
-                <h3 className="text-2xl font-bold font-display text-white mb-6">Compartilhar App</h3>
+                <h3 className="text-2xl font-bold font-display text-white mb-2 text-center">Compartilhar App</h3>
+                <p className="text-zinc-500 text-[10px] uppercase font-mono tracking-widest text-center mb-6">Divulgue este software premium</p>
                 
-                <div className="flex items-center gap-4 mb-6 bg-zinc-950 p-4 rounded-2xl border border-zinc-800/50 shadow-inner">
-                  <img src={app.iconDataUrl} alt={app.name} className="w-14 h-14 rounded-xl object-cover" />
-                  <div>
-                    <p className="text-white font-bold">{app.name}</p>
-                    <p className="text-mk-blue-400 text-xs font-mono">{app.developerName}</p>
+                <div className="flex flex-col items-center justify-center mb-8 p-6 bg-white rounded-3xl shadow-[0_0_40px_rgba(255,255,255,0.05)] relative group">
+                  <div className="absolute inset-0 bg-mk-blue-500/5 blur-2xl rounded-full group-hover:bg-mk-blue-500/10 transition-colors"></div>
+                  <div className="relative z-10 bg-white p-2 rounded-xl">
+                    <QRCodeSVG 
+                      value={window.location.href} 
+                      size={180}
+                      level="H"
+                      includeMargin={false}
+                      imageSettings={{
+                        src: app.iconDataUrl,
+                        x: undefined,
+                        y: undefined,
+                        height: 40,
+                        width: 40,
+                        excavate: true,
+                      }}
+                    />
                   </div>
+                  <p className="mt-4 text-black font-bold text-[10px] uppercase tracking-tighter">Escaneie para Instalar</p>
                 </div>
                 
-                <p className="text-zinc-400 text-sm mb-3">Qualquer pessoa com este link pode acessar a página do aplicativo.</p>
+                <div className="grid grid-cols-3 gap-3 mb-8">
+                  <button 
+                    onClick={shareToWhatsApp}
+                    className="flex flex-col items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-2xl hover:bg-green-500/20 transition-all text-green-500 group"
+                  >
+                    <MessageCircle size={24} className="group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold uppercase">WhatsApp</span>
+                  </button>
+                  <button 
+                    onClick={shareToTwitter}
+                    className="flex flex-col items-center gap-2 p-3 bg-zinc-800 border border-zinc-700 rounded-2xl hover:bg-zinc-700 transition-all text-white group"
+                  >
+                    <Twitter size={24} className="group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold uppercase">Twitter</span>
+                  </button>
+                  <button 
+                    className="flex flex-col items-center gap-2 p-3 bg-blue-600/10 border border-blue-600/20 rounded-2xl hover:bg-blue-600/20 transition-all text-blue-500 group opacity-50 cursor-not-allowed"
+                  >
+                    <Facebook size={24} />
+                    <span className="text-[10px] font-bold uppercase">Facebook</span>
+                  </button>
+                </div>
 
                 <div className="flex bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden focus-within:border-mk-blue-500 transition-colors">
                   <input 

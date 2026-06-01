@@ -24,6 +24,9 @@ interface StoreContextType {
   pinApp: (appId: string) => void;
   unpinApp: (appId: string) => void;
   incrementDownloads: (appId: string) => Promise<void>;
+  // PWA Install
+  canInstallStore: boolean;
+  installStore: () => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -38,6 +41,48 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Real installations state
   const [installedAppIds, setInstalledAppIds] = useState<string[]>([]);
   const [pinnedAppIds, setPinnedAppIds] = useState<string[]>([]);
+  
+  // PWA Install state
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [canInstallStore, setCanInstallStore] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      setDeferredPrompt(e);
+      // Update UI notify the user they can install the PWA
+      setCanInstallStore(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    window.addEventListener('appinstalled', () => {
+      setCanInstallStore(false);
+      setDeferredPrompt(null);
+      console.log('PWA was installed');
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const installStore = async () => {
+    if (!deferredPrompt) return;
+    
+    // Show the install prompt
+    deferredPrompt.prompt();
+    
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    
+    // We've used the prompt, and can't use it again, throw it away
+    setDeferredPrompt(null);
+    setCanInstallStore(false);
+  };
 
   useEffect(() => {
     const savedInstalls = localStorage.getItem('installed_apps_v2');
@@ -609,7 +654,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       uninstallApp,
       pinApp,
       unpinApp,
-      incrementDownloads
+      incrementDownloads,
+      canInstallStore,
+      installStore
     }}>
       {children}
     </StoreContext.Provider>
