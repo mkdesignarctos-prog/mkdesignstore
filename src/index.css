@@ -23,12 +23,12 @@
 body {
   @apply text-zinc-100 font-sans antialiased min-h-screen tracking-tight;
   background-image: 
-    linear-gradient(135deg, rgba(4, 32, 55, 0.9) 0%, rgba(1, 4, 14, 0.98) 32%, #000000 78%),
-    repeating-linear-gradient(0deg, rgba(0, 210, 255, 0.015) 0px, rgba(0, 210, 255, 0.015) 1px, transparent 1px, transparent 4px),
-    linear-gradient(rgba(0, 210, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 210, 255, 0.04) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 4px, 48px 48px, 48px 48px;
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.75)),
+    url('https://i.pinimg.com/736x/b7/d5/f2/b7d5f284a2e844caf24f859547a42fa9.jpg');
+  background-size: cover;
+  background-position: center;
   background-attachment: fixed;
+  background-repeat: no-repeat;
   background-color: #000000;
 }
 

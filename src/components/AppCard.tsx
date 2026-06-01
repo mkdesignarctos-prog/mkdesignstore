@@ -2,10 +2,15 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { AppItem } from '../types';
 import { Link, useNavigate } from 'react-router-dom';
-import { Star, Download } from 'lucide-react';
+import { Star, Download, Check } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
 
 export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttributes<HTMLAnchorElement>) {
   const navigate = useNavigate();
+  const { installedAppIds = [], isInstallingMap = {} } = useStore();
+
+  const isInstalled = installedAppIds.includes(app.id);
+  const isInstalling = isInstallingMap[app.id];
 
   const handleDeveloperClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -83,10 +88,22 @@ export function AppCard({ app, ...props }: { app: AppItem } & React.HTMLAttribut
             </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-zinc-950 group-hover:bg-mk-blue-500 text-zinc-400 group-hover:text-black py-1.5 px-3 rounded-xl transition-all duration-300 border border-zinc-900 group-hover:border-mk-blue-500 pr-2">
-            <span className="text-[10px] font-mono font-bold tracking-wider mr-1 group-hover:text-black uppercase">Instalar</span>
-            <Download size={12} className="animate-bounce" style={{ animationDuration: '2s' }} />
-          </div>
+          {isInstalling ? (
+            <div className="flex items-center gap-1.5 bg-zinc-950 text-mk-blue-400 py-1.5 px-3 rounded-xl border border-zinc-900">
+              <div className="w-2.5 h-2.5 border-2 border-mk-blue-400 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-[10px] font-mono font-bold tracking-wider uppercase">Loading</span>
+            </div>
+          ) : isInstalled ? (
+            <div className="flex items-center gap-1.5 bg-mk-blue-500/10 text-mk-blue-400 py-1.5 px-3 rounded-xl border border-mk-blue-500/30">
+              <Check size={12} strokeWidth={3} />
+              <span className="text-[10px] font-mono font-bold tracking-wider uppercase">Abrir</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 bg-zinc-950 group-hover:bg-mk-blue-500 text-zinc-400 group-hover:text-black py-1.5 px-3 rounded-xl transition-all duration-300 border border-zinc-900 group-hover:border-mk-blue-500 pr-2">
+              <span className="text-[10px] font-mono font-bold tracking-wider mr-1 group-hover:text-black uppercase">Instalar</span>
+              <Download size={12} className="animate-bounce" style={{ animationDuration: '2s' }} />
+            </div>
+          )}
         </div>
       </motion.div>
     </Link>

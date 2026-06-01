@@ -19,10 +19,14 @@ export function AppDetails() {
     addReview,
     installedAppIds = [],
     pinnedAppIds = [],
+    installApp,
     uninstallApp,
     pinApp,
     unpinApp,
-    incrementDownloads
+    incrementDownloads,
+    appsLoading,
+    isInstallingMap,
+    setInstalling
   } = useStore();
   const navigate = useNavigate();
   
@@ -31,17 +35,77 @@ export function AppDetails() {
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [guestName, setGuestName] = useState('');
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [installProgress, setInstallProgress] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isInstallOpen, setIsInstallOpen] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Install Logic (Play Store Style)
+  const isInstalling = app ? isInstallingMap[app.id] : false;
+
+  const handleStartInstallation = async () => {
+    if (!app) return;
+    
+    setInstalling(app.id, true);
+    setInstallProgress(0);
+    
+    // Simulate real progress sequence while starting background download
+    const interval = setInterval(() => {
+      setInstallProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          finishInstallation();
+          return 100;
+        }
+        const step = Math.random() * 5 + 1;
+        return Math.min(prev + step, 100);
+      });
+    }, 150);
+
+    // Increment downloads count
+    try {
+      await incrementDownloads(app.id);
+    } catch (e) {
+      console.warn('Downloads sync failed', e);
+    }
+
+    // Trigger physical download
+    if (app.fileObjectUrl) {
+      const link = document.createElement('a');
+      link.href = app.fileObjectUrl;
+      link.download = app.fileName || `${app.name.toLowerCase().replace(/ /g, '_')}_install.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const finishInstallation = () => {
+    if (!app) return;
+    installApp(app.id);
+    setInstalling(app.id, false);
+    setInstallProgress(0);
+    setIsInstallOpen(true); // Mostrar modal de sucesso real
+  };
+
+  const cancelInstallation = () => {
+    if (!app) return;
+    setInstalling(app.id, false);
+    setInstallProgress(0);
+  };
+
   useEffect(() => {
     if (!id) return;
 
     const findApp = async () => {
+      // Se a loja ainda está carregando a lista inicial, não concluímos ainda
+      if (appsLoading) {
+        setLoading(true);
+        return;
+      }
+
       setLoading(true);
       const localApp = getAppById(id);
       
@@ -86,15 +150,26 @@ export function AppDetails() {
     };
 
     findApp();
-  }, [id, getAppById]);
+  }, [id, getAppById, appsLoading]);
+
+  // Re-fetch reviews whenever app changes
+  useEffect(() => {
+    if (app && id) {
+      // Logic to fetch reviews handled by context already, 
+      // but ensuring fresh state here if needed
+    }
+  }, [app, id]);
 
   const reviews = id ? getReviewsForApp(id) : [];
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-white bg-transparent">
-        <Loader2 className="w-10 h-10 text-mk-blue-400 animate-spin mb-4" />
-        <p className="text-zinc-500 font-mono text-sm tracking-widest uppercase">Sincronizando Banco de Dados...</p>
+      <div className="min-h-screen flex flex-col bg-transparent">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center text-white p-6">
+          <Loader2 className="w-10 h-10 text-mk-blue-400 animate-spin mb-4" />
+          <p className="text-zinc-500 font-mono text-[10px] tracking-widest uppercase">Consultando Servidores MK... {id?.slice(0, 8)}</p>
+        </div>
       </div>
     );
   }
@@ -110,12 +185,15 @@ export function AppDetails() {
     );
   }
 
+  // Robust URL detection for sharing and QR code
+  const currentUrl = `${window.location.origin}${window.location.pathname}`;
+
   const handleShareClick = () => {
     if (navigator.share) {
       navigator.share({
         title: `Baixe ${app.name} na MK Design Studio`,
         text: `Dê uma olhada neste aplicativo incrível que encontrei na MK Store: ${app.name}`,
-        url: window.location.href,
+        url: currentUrl,
       }).catch(() => {
         setIsShareModalOpen(true);
       });
@@ -125,37 +203,19 @@ export function AppDetails() {
   };
 
   const shareToWhatsApp = () => {
-    const text = encodeURIComponent(`Dê uma olhada neste aplicativo incrível que encontrei na MK Store: ${app.name}\n\nConfira aqui: ${window.location.href}`);
+    const text = encodeURIComponent(`Dê uma olhada neste aplicativo incrível que encontrei na MK Store: ${app.name}\n\nConfira aqui: ${currentUrl}`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
   const shareToTwitter = () => {
     const text = encodeURIComponent(`Acabei de encontrar o app ${app.name} na MK Design Studio! Confira:`);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(currentUrl)}`, '_blank');
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(currentUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleDownload = async () => {
-    setIsDownloading(true);
-    
-    // Increment download globally
-    if (app) {
-      try {
-        await incrementDownloads(app.id);
-      } catch (e) {
-        console.warn('Erro ao atualizar downloads', e);
-      }
-    }
-      
-    setTimeout(() => {
-      setIsDownloading(false);
-      setIsInstallOpen(true); // Open premium simulated device installer!
-    }, 600);
   };
 
   const submitReview = async (e: React.FormEvent) => {
@@ -238,32 +298,66 @@ export function AppDetails() {
               return (
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-wrap items-center gap-3">
-                    {!isInstalled ? (
+                    {isInstalling ? (
+                      <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-2 pr-6 rounded-2xl animate-in fade-in zoom-in-95 duration-200">
+                        <div className="relative w-14 h-14 flex items-center justify-center">
+                          <svg className="w-full h-full transform -rotate-90">
+                            <circle
+                              cx="28"
+                              cy="28"
+                              r="24"
+                              fill="transparent"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              className="text-zinc-800"
+                            />
+                            <motion.circle
+                              cx="28"
+                              cy="28"
+                              r="24"
+                              fill="transparent"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              strokeDasharray="150.8"
+                              initial={{ strokeDashoffset: 150.8 }}
+                              animate={{ strokeDashoffset: 150.8 - (150.8 * installProgress) / 100 }}
+                              className="text-mk-blue-500"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <span className="absolute text-[10px] font-bold font-mono text-white">
+                            {Math.round(installProgress)}%
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-white font-bold text-sm">Instalando...</span>
+                          <button 
+                            onClick={cancelInstallation}
+                            className="text-[10px] text-zinc-500 hover:text-red-400 font-bold uppercase tracking-widest mt-0.5 transition-colors"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    ) : !isInstalled ? (
                       <button 
-                        onClick={handleDownload}
-                        disabled={isDownloading}
-                        className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-mk-blue-500 hover:bg-mk-blue-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(0,210,255,0.2)] disabled:opacity-70 disabled:cursor-wait uppercase text-xs tracking-wider"
+                        onClick={handleStartInstallation}
+                        className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-mk-blue-500 hover:bg-mk-blue-400 text-black font-extrabold px-12 rounded-xl transition-all shadow-[0_0_30px_rgba(0,210,255,0.2)] uppercase text-xs tracking-widest hover:scale-[1.02] active:scale-95"
                       >
-                        {isDownloading ? (
-                          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
-                            <Download size={18} />
-                          </motion.div>
-                        ) : (
-                          <Download size={18} />
-                        )}
-                        <span>{isDownloading ? 'Solicitando...' : 'Instalar no Celular'}</span>
+                        <Download size={18} />
+                        <span>Instalar</span>
                       </button>
                     ) : (
                       <>
                         {/* Run/Launch Button */}
                         <button 
                           onClick={() => setIsSandboxOpen(true)}
-                          className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-mk-blue-500 to-cyan-500 hover:from-mk-blue-400 hover:to-cyan-400 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(0,210,255,0.25)] text-xs uppercase tracking-wider animate-in fade-in duration-200"
+                          className="h-12 flex-1 md:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-mk-blue-600 to-mk-blue-400 hover:from-mk-blue-500 hover:to-mk-blue-300 text-black font-extrabold px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(14,165,233,0.25)] text-xs uppercase tracking-wider animate-in fade-in duration-200"
                         >
                           <Play size={16} fill="black" />
-                          <span>Iniciar Native Simulation</span>
+                          <span>Abrir</span>
                         </button>
- 
+
                         {/* PINS BUTTON (option to pin to Home Screen) */}
                         <button 
                           onClick={() => isPinned ? unpinApp(app.id) : pinApp(app.id)}
@@ -298,11 +392,11 @@ export function AppDetails() {
                   </div>
 
                   {/* Status hints */}
-                  {isInstalled && (
+                  {(isInstalled && !isInstalling) && (
                     <div className="flex flex-col gap-1.5 p-3.5 bg-zinc-900/30 border border-zinc-850 rounded-2xl max-w-sm">
                       <p className="text-[11px] text-zinc-400 flex items-center gap-1.5 font-sans leading-tight">
                         <Check size={14} className="text-mk-blue-400 shrink-0" />
-                        <span>Este aplicativo foi instalado com sucesso no seu dispositivo virtual local.</span>
+                        <span>Este aplicativo está pronto para uso.</span>
                       </p>
                       {isPinned ? (
                         <p className="text-[10px] text-mk-blue-400 font-mono flex items-center gap-1">
@@ -472,7 +566,7 @@ export function AppDetails() {
                   <div className="absolute inset-0 bg-mk-blue-500/5 blur-2xl rounded-full group-hover:bg-mk-blue-500/10 transition-colors"></div>
                   <div className="relative z-10 bg-white p-2 rounded-xl">
                     <QRCodeSVG 
-                      value={window.location.href} 
+                      value={currentUrl} 
                       size={180}
                       level="H"
                       includeMargin={false}
@@ -516,7 +610,7 @@ export function AppDetails() {
                   <input 
                     type="text" 
                     readOnly 
-                    value={window.location.href} 
+                    value={currentUrl} 
                     className="flex-1 bg-transparent text-zinc-400 text-sm px-4 py-3 outline-none" 
                   />
                   <button 

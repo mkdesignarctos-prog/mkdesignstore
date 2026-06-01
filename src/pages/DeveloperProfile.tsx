@@ -76,7 +76,7 @@ export function DeveloperProfile() {
       </div>
       
       {/* Footer */}
-      <footer className="border-t border-zinc-900 bg-zinc-950 py-12 text-center mt-auto">
+      <footer className="border-t border-zinc-900 bg-transparent py-12 text-center mt-auto">
         <p className="text-zinc-500 text-sm font-medium">© 2026 MK Design Studio. Todos os direitos reservados.</p>
       </footer>
     </div>

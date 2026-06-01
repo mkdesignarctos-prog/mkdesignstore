@@ -19,6 +19,8 @@ interface StoreContextType {
   // Installation & Pinning APIs
   installedAppIds: string[];
   pinnedAppIds: string[];
+  isInstallingMap: Record<string, boolean>;
+  setInstalling: (appId: string, status: boolean) => void;
   installApp: (appId: string) => void;
   uninstallApp: (appId: string) => void;
   pinApp: (appId: string) => void;
@@ -27,6 +29,7 @@ interface StoreContextType {
   // PWA Install
   canInstallStore: boolean;
   installStore: () => void;
+  appsLoading: boolean;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -34,6 +37,7 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [apps, setApps] = useState<AppItem[]>([]);
+  const [appsLoading, setAppsLoading] = useState(true);
   const [reviewsMap, setReviewsMap] = useState<Record<string, Review[]>>({});
   const [authReady, setAuthReady] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +45,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Real installations state
   const [installedAppIds, setInstalledAppIds] = useState<string[]>([]);
   const [pinnedAppIds, setPinnedAppIds] = useState<string[]>([]);
+  const [isInstallingMap, setIsInstallingMap] = useState<Record<string, boolean>>({});
+  
+  const setInstalling = (appId: string, status: boolean) => {
+    setIsInstallingMap(prev => ({ ...prev, [appId]: status }));
+  };
   
   // PWA Install state
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -240,6 +249,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       });
     
     setApps(sortedApps);
+    setAppsLoading(false);
   };
 
   useEffect(() => {
@@ -650,13 +660,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setSearchQuery,
       installedAppIds,
       pinnedAppIds,
+      isInstallingMap,
+      setInstalling,
       installApp,
       uninstallApp,
       pinApp,
       unpinApp,
       incrementDownloads,
       canInstallStore,
-      installStore
+      installStore,
+      appsLoading
     }}>
       {children}
     </StoreContext.Provider>

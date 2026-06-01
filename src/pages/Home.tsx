@@ -539,9 +539,9 @@ export function Home() {
               
               <div className="bg-zinc-900/60 backdrop-blur-md border border-zinc-850 px-4 py-3 rounded-2xl max-w-sm shadow-md flex items-center gap-3">
                 <div className="flex-1">
-                  <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest mb-1 font-bold">Status do Android Host</p>
+                  <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest mb-1 font-bold">Consola MK Native Host</p>
                   <div className="text-xs text-zinc-300 leading-relaxed font-sans">
-                    Permissões: <strong className="text-mk-blue-400 font-bold">CONCEDIDAS</strong> • Apps Instalados: <span className="text-white font-bold">{installedApps.length}</span>
+                    Status: <strong className="text-mk-blue-400 font-bold">CONECTADO</strong> • Apps Ativos: <span className="text-white font-bold">{installedApps.length}</span>
                   </div>
                 </div>
               </div>
@@ -671,7 +671,7 @@ export function Home() {
       )}
       
       {/* Footer */}
-      <footer className="border-t border-zinc-900 bg-zinc-950 py-16 text-center mt-auto">
+      <footer className="border-t border-zinc-900 bg-transparent py-16 text-center mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center">
           <div className="w-12 h-12 bg-black border border-mk-blue-500/30 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(14,165,233,0.1)]">
             <span className="text-mk-blue-400 font-bold text-xl">MK</span>
